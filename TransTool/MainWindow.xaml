@@ -5,8 +5,91 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TransTool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="年代记翻译工具" Height="900" Width="1600" Background="#FF999999">
+    <!--窗体路由-->
+    <Window.Resources>
+        <RoutedCommand x:Key="Copy"/>
+        <!--控件动画-->
+        <Storyboard x:Key="labelAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"  From="1" To="1" Duration="0:0:2" />
+            <!--显示2秒-->
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" BeginTime="0:0:2" From="1" To="0" DecelerationRatio=".5" Duration="0:0:2" />
+            <!--2秒渐变隐藏-->
+        </Storyboard>
+    </Window.Resources>
+    <!--窗体命令绑定-->
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource Copy}" Executed="CopyCommand"/>
+    </Window.CommandBindings>
+    <!--主要界面布局，Viewbox,Canvas用于缩放窗口大小-->
+    <Viewbox Stretch="Fill">
+        <Canvas Height="900" Width="1600">
+            <DataGrid x:Name="textGird" Height="500" Canvas.Left="1180" Canvas.Top="75" Width="400" HeadersVisibility="None"  SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False">
+                <!--失去焦点后颜色不变-->
+                <DataGrid.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
+                </DataGrid.Resources>
+                <!-- Ctrl+C组合键呼叫Copy -->
+                <DataGrid.InputBindings>
+                    <KeyBinding Key="C" Modifiers="Control" Command="{StaticResource Copy}" CommandParameter="已复制文本区域内容" />
+                </DataGrid.InputBindings>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding OldData}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{x:Null}" Header="TextCH" Width="*" FontSize="14" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Height" Value="auto"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding NewData}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{x:Null}" Header="TextEN" Width="*" FontSize="14" IsReadOnly="True" >
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Height" Value="auto"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="13" Width="75" Click="loadBtn_Click"/>
+            <DataGrid x:Name="transGrid" Height="206" Canvas.Left="543" Canvas.Top="75" Width="229" 
+                      HeadersVisibility="None" MouseDoubleClick="TransGrid_MouseDoubleClick" Background="#FFE2E2E2">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding data}" CanUserSort="False" 
+                                        CanUserReorder="False" ClipboardContentBinding="{x:Null}" 
+                                        Header="Text" Width="*" FontSize="14" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Height" Value="auto"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+
+            </DataGrid>
+            <DataGrid x:Name="refGrid" Height="206" Canvas.Left="543" Canvas.Top="369" Width="229" HeadersVisibility="None" Background="#FFD6D6D6">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding data}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{x:Null}" Header="Text" Width="*" FontSize="14" IsReadOnly="True">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="Height" Value="auto"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+
+            </DataGrid>
+            <Rectangle Fill="#FF89898B" Height="270" Canvas.Left="20" Stroke="Black" Canvas.Top="592" Width="1560"/>
+            <TextBox x:Name="showBox" Height="79" Canvas.Left="854" TextWrapping="Wrap" Text="" Canvas.Top="627" Width="304" IsReadOnly="True" Background="#FFCDCBCB" />
+            <TextBox x:Name="editBox" Height="79" Canvas.Left="854" TextWrapping="Wrap" Canvas.Top="731" Width="304" 
+                     Text="" TextChanged="EditBox_TextChanged" AcceptsReturn="True"/>
+            <Button x:Name="updateBtn" Content="更新文本" Canvas.Left="854" Canvas.Top="815" Width="74" Click="updateBtn_Click" Height="37"/>
+            <Label x:Name="messageShow" Content="111" Canvas.Left="1443" Canvas.Top="867" Width="137" FontSize="10" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
+            <Label Content="原文区域：" Canvas.Left="854" Canvas.Top="602"/>
+            <Label Content="编辑区域：" Canvas.Left="854" Canvas.Top="706"/>
+        </Canvas>
+    </Viewbox>
 </Window>
