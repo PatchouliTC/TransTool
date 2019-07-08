@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Windows.Media.Animation;
 using System.Text.RegularExpressions;
 using System.Data;
+using System.Collections;
 
 namespace TransTool
 {
@@ -38,9 +39,10 @@ namespace TransTool
 
         const int MaxLineCount = 4;
         DataGrid selectgrid;
-        ObservableCollection<OverviewData> textlist = new ObservableCollection<OverviewData>();
+        ObservableCollection<ViewData> textlist = new ObservableCollection<ViewData>();
         ObservableCollection<FileData> translist = new ObservableCollection<FileData>();
         ObservableCollection<FileData> reflist = new ObservableCollection<FileData>();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -119,27 +121,22 @@ namespace TransTool
                         if (reg.IsMatch(readtmp))
                         {
 
-                            StringBuilder sb = new StringBuilder();
+                            List<string> al = new List<string>();
                             readtmp = s.ReadLine();
                             while (!reg.IsMatch(readtmp))
                             {
                                 if (!reg2.IsMatch(readtmp))//+++忽略
                                 {
-                                    sb.Append(readtmp);
+                                    al.Add(readtmp);
                                 }
                                 readtmp = s.ReadLine();
                                 if (readtmp == null)
                                     break;
-                                if (!reg.IsMatch(readtmp))
-                                {
-                                    sb.Append("\r\n");
-                                }
-
                             }
                             if (readtmp != null)
                             {
-                                OverviewData dt = new OverviewData();
-                                dt.NewData=dt.OldData = sb.ToString();
+                                ViewData dt = new ViewData();
+                                dt.Data = al.ToArray();
                                 textlist.Add(dt);//此时readtmp里面是下一个虚线分隔符
                             }
                         }
@@ -159,10 +156,9 @@ namespace TransTool
                 if (selectgrid != null && selectgrid.SelectedItems != null && selectgrid.SelectedItems.Count == 1)
                 {
                     //当前选择的Text条目
-                    OverviewData info = selectgrid.SelectedItem as OverviewData;
+                    ViewData info = selectgrid.SelectedItem as ViewData;
                     if (info == null) return;
-                    showBox.Text = info.OldData;
-                    editBox.Text = info.NewData;
+                    editGrid.DataContext = info;
                 }
             }
         }
@@ -191,16 +187,20 @@ namespace TransTool
         /// </summary>
         private void updateBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (selectgrid != null && selectgrid.SelectedItems != null && selectgrid.SelectedItems.Count == 1)
+            if (editGrid.DataContext != null)
             {
-                (selectgrid.SelectedItem as OverviewData).NewData = editBox.Text;
-                
-                //TextData dt = new TextData();
-                //dt.data = showBox.Text;
-                //dt.newdata = editBox.Text;
-                //textlist.Insert(selectgrid.SelectedIndex, dt);
-                //textlist.RemoveAt(selectgrid.SelectedIndex);
+                (DataContext as ViewData).NewData = editBox.Text;
             }
+            //if (selectgrid != null && selectgrid.SelectedItems != null && selectgrid.SelectedItems.Count == 1)
+            //{
+            //    (selectgrid.SelectedItem as OverviewData).NewData = editBox.Text;
+                
+            //    //TextData dt = new TextData();
+            //    //dt.data = showBox.Text;
+            //    //dt.newdata = editBox.Text;
+            //    //textlist.Insert(selectgrid.SelectedIndex, dt);
+            //    //textlist.RemoveAt(selectgrid.SelectedIndex);
+            //}
         }
         /// <summary>
         /// Handle CTRL + C callback
