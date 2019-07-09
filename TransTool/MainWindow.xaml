@@ -26,7 +26,7 @@
         <Canvas Height="900" Width="1600">
             <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="13" Width="75" Click="loadBtn_Click"/>
             <!--翻译/待翻译文本比较显示区域-->
-            <DataGrid x:Name="textGird" Height="500" Canvas.Left="1180" Canvas.Top="75" Width="400" HeadersVisibility="None"  SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False">
+            <DataGrid x:Name="textGird" Height="500" Canvas.Left="856" Canvas.Top="75" Width="724" HeadersVisibility="None"  SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False">
                 <!--失去焦点后颜色不变-->
                 <DataGrid.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
@@ -88,18 +88,18 @@
             </DataGrid>
 
             <Rectangle Fill="#FF89898B" Height="270" Canvas.Left="20" Stroke="Black" Canvas.Top="592" Width="1560"/>
-            
-            <Grid x:Name="editGrid" Height="270" Canvas.Left="20" Canvas.Top="592" Width="1560">
+
+            <Grid x:Name="editGrid"  Grid.Row="4" Height="270" Canvas.Left="20" Canvas.Top="592" Width="1560">
                 <Grid.DataContext>
                     <local:ViewData />
                 </Grid.DataContext>
-                <TextBox x:Name="showBox" Height="79" Canvas.Left="854" TextWrapping="Wrap" Text="{Binding Path=OldData,Mode=OneWay}" Canvas.Top="627" Width="304" IsReadOnly="True" Background="#FFCDCBCB" Margin="839,135,417,56" />
-                <TextBox x:Name="editBox" Height="79" Canvas.Left="854" TextWrapping="Wrap" Canvas.Top="731" Width="304" Text="{Binding Path=NewData,Mode=OneWay}" TextChanged="EditBox_TextChanged" AcceptsReturn="True" Margin="839,33,417,158"/>
+                <TextBox x:Name="showBox" Height="79" Canvas.Left="854" TextWrapping="Wrap" Text="{Binding Path=OldData,Mode=OneWay}" Canvas.Top="627" Width="304" IsReadOnly="True" Background="#FFCDCBCB" Margin="839,33,417,158" />
+                <TextBox x:Name="editBox" Height="79" Canvas.Left="854" TextWrapping="Wrap" Canvas.Top="731" Width="304" Text="{Binding Path=NewData,Mode=TwoWay,UpdateSourceTrigger=Explicit}" AcceptsReturn="True" Margin="839,135,417,56"/>
                 <Button x:Name="updateBtn" Content="更新文本" Canvas.Left="854" Canvas.Top="815" Width="74" Click="updateBtn_Click" Height="37" Margin="839,219,647,14"/>
                 <Label Content="原文区域：" Canvas.Left="854" Canvas.Top="706" Margin="839,10,656,235"/>
                 <Label Content="编辑区域：" Canvas.Left="854" Canvas.Top="706" Margin="839,112,656,135"/>
             </Grid>
-            
+
 
             <Label x:Name="messageShow" Content="111" Canvas.Left="1443" Canvas.Top="867" Width="137" FontSize="10" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
 

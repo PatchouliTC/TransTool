@@ -163,33 +163,15 @@ namespace TransTool
             }
         }
         /// <summary>
-        /// 编辑区行数限制
-        /// </summary>
-        private void EditBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox textBox = (TextBox)sender;
-
-            int textLineCount = textBox.LineCount;
-            if (textLineCount > MaxLineCount)
-            {
-                StringBuilder text = new StringBuilder();
-                for (int i = textLineCount-1; i < MaxLineCount; i++)
-                {
-                    string tmp = textBox.GetLineText(i);
-                    text.Append(tmp);
-                }
-                textBox.Text = text.ToString();
-                textBox.SelectionStart = textBox.Text.Length;
-            }
-        }
-        /// <summary>
         /// 文本编辑后提交按钮
         /// </summary>
         private void updateBtn_Click(object sender, RoutedEventArgs e)
         {
             if (editGrid.DataContext != null)
             {
-                (DataContext as ViewData).NewData = editBox.Text;
+                
+                this.editBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                //(editGrid.DataContext as ViewData).NewData = editBox.Text;
             }
             //if (selectgrid != null && selectgrid.SelectedItems != null && selectgrid.SelectedItems.Count == 1)
             //{

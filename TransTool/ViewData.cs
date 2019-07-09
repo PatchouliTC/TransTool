@@ -58,6 +58,7 @@ namespace TransTool
             get { return this.olddata; }
             set
             {
+                if (this.IsInit) return;
                 if (value != this.olddata)
                 {
                     this.olddata = value;
@@ -95,7 +96,6 @@ namespace TransTool
         /// </summary>
         private void InitShowText()
         {
-            if(this.IsInit) return;
             StringBuilder sb = new StringBuilder();
             //将data中所有非null值拼接到sb中
             Array.ForEach(this.data, s => { if (!string.IsNullOrEmpty(s)) sb.AppendLine(s); });
