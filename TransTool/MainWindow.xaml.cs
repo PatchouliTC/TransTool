@@ -65,6 +65,7 @@ namespace TransTool
             if (temp == null||temp.Length<2)
             {
                 MessageBoxResult result = MessageBox.Show("当前程序目录下未找到data和reference目录！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
             foreach (string t in temp)
             {
@@ -169,7 +170,6 @@ namespace TransTool
         {
             if (editGrid.DataContext != null)
             {
-                
                 this.editBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
                 //(editGrid.DataContext as ViewData).NewData = editBox.Text;
             }
@@ -195,7 +195,7 @@ namespace TransTool
             messageShow.Content = e.Parameter.ToString();
             Storyboard storyboard = Resources["labelAnimation"] as Storyboard;
             storyboard.Begin(messageShow);
-            e.Handled = true;
+            e.Handled = false;
         }
     }
 }

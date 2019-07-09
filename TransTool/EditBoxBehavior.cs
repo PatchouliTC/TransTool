@@ -2,43 +2,56 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interactivity;
 
 namespace TransTool
 {
-    /// <summary>
-    ///     Regular expression for Textbox with properties: 
-    ///         <see cref="RegularExpression"/>, 
-    ///         <see cref="MaxLength"/>,
-    ///         <see cref="EmptyValue"/>.
-    /// </summary>
     public class TextBoxInputRegExBehaviour : Behavior<TextBox>
     {
         #region DependencyProperties
-        public static readonly DependencyProperty RegularExpressionProperty =
-            DependencyProperty.Register("RegularExpression", typeof(string), typeof(TextBoxInputRegExBehaviour), new FrameworkPropertyMetadata(".*"));
 
-        public string RegularExpression
-        {
-            get { return (string)GetValue(RegularExpressionProperty); }
-            set { SetValue(RegularExpressionProperty, value); }
-        }
+        public static readonly DependencyProperty MaxLineProperty =
+            DependencyProperty.Register(
+                nameof(MaxLine),
+                typeof(int),
+                typeof(TextBoxInputRegExBehaviour),
+                new FrameworkPropertyMetadata(0));
 
         public static readonly DependencyProperty MaxLengthProperty =
-            DependencyProperty.Register("MaxLength", typeof(int), typeof(TextBoxInputRegExBehaviour),
-                                            new FrameworkPropertyMetadata(int.MinValue));
-
-        public int MaxLength
-        {
-            get { return (int)GetValue(MaxLengthProperty); }
-            set { SetValue(MaxLengthProperty, value); }
-        }
+            DependencyProperty.Register(
+                nameof(MaxLength),
+                typeof(int),
+                typeof(TextBoxInputRegExBehaviour),
+                new FrameworkPropertyMetadata(0));
 
         public static readonly DependencyProperty EmptyValueProperty =
             DependencyProperty.Register("EmptyValue", typeof(string), typeof(TextBoxInputRegExBehaviour), null);
-
+        /// <summary>
+        /// 最大行数
+        /// </summary>
+        public int MaxLine
+        {
+            get { return (int)GetValue(MaxLineProperty); }
+            set
+            {
+                SetValue(MaxLineProperty, value);
+            }
+        }
+        /// <summary>
+        /// 单行最长长度[不包括换行符]
+        /// </summary>
+        public int MaxLength
+        {
+            get { return (int)GetValue(MaxLengthProperty); }
+            set
+            {
+                SetValue(MaxLengthProperty, value );
+            }
+        }
         public string EmptyValue
         {
             get { return (string)GetValue(EmptyValueProperty); }
@@ -46,16 +59,20 @@ namespace TransTool
         }
         #endregion
 
+        private int MaxAllLength=0;
+        private int[] LineLength;
+
         /// <summary>
         ///     Attach our behaviour. Add event handlers
         /// </summary>
         protected override void OnAttached()
         {
             base.OnAttached();
-
+            MaxAllLength = this.MaxLine * this.MaxLength+Environment.NewLine.Length*(this.MaxLine);//整个文本框理论最大值【包括了换行符
             AssociatedObject.PreviewTextInput += PreviewTextInputHandler;
             AssociatedObject.PreviewKeyDown += PreviewKeyDownHandler;
             DataObject.AddPastingHandler(AssociatedObject, PastingHandler);
+            LineLength = new int[MaxLine+1];//初始化最大行数
         }
 
         /// <summary>
@@ -74,7 +91,76 @@ namespace TransTool
 
         void PreviewTextInputHandler(object sender, TextCompositionEventArgs e)
         {
+            //当前输入字符的位置[光标前一个字符的位置，从0开始计数]
+            int indexinline = AssociatedObject.CaretIndex;
+            //当前光标所在行
+            int focusline=AssociatedObject.GetLineIndexFromCharacterIndex(indexinline);
+            //即将输入字符长度
+            int inputlength = e.Text.Length;
+            //当前行该光标前一个字符相对于行首的长度
+            indexinline -= AssociatedObject.GetCharacterIndexFromLineIndex(focusline);
+            //光标前面的字符长度
+            int frontlength=AssociatedObject.Text.Length-1- AssociatedObject.GetCharacterIndexFromLineIndex(focusline)-indexinline;
+            //如果当前行长度加上即将输入字符长度小于限制的单行最大长度，不处理
+            if (indexinline + inputlength <= MaxLength)
+            {
+                e.Handled = false;
+                return;
+            }
+            else
+            {
+                //如果大于 说明尝试输入的时候已经到达了该行限制的最大长度
+                //最佳情况：光标位于行末尾
+                //如果光标在当前行末尾[行末尾-1。每往前一个字符+1]
+                if (frontlength < 0)
+                {
+                    //如果当前行是最大行[focusline从0开始]，直接停止输入
+                    if (focusline==MaxLine-1)
+                    {
+                        e.Handled = true;
+                        return;
+                    }
+                    AssociatedObject.Text = AssociatedObject.Text.Insert(AssociatedObject.CaretIndex, Environment.NewLine);
+                    AssociatedObject.CaretIndex = AssociatedObject.Text.Length;
+                }
+                //坑爹情况：光标不在末尾而位于文本中任一位置
+                else
+                {
+                    //TODO:
+                }
+                e.Handled = false;
+                return;
+            }
+            
+
+
+            if (AssociatedObject.LineCount < this.MaxLine)
+            {
+                //如果当前行数比设定最大行数小，最多进行换行处理
+
+                e.Handled = false ;
+                return;
+            }
+            //获取当前光标前面换行符出现次数
+            int count = Regex.Matches(AssociatedObject.Text.Substring(0, AssociatedObject.CaretIndex - 1), Environment.NewLine).Count;
+
+
+
+
+
+
+
+
+
             string text;
+            int c = AssociatedObject.CaretIndex;
+            AssociatedObject.Text = e.Text + "1";
+            if (AssociatedObject.LineCount >= 4)
+            {
+                AssociatedObject.Text.Insert(this.AssociatedObject.CaretIndex, e.Text);
+
+                //AssociatedObject.Text.
+            }
             if (this.AssociatedObject.Text.Length < this.AssociatedObject.CaretIndex)
                 text = this.AssociatedObject.Text;
             else
@@ -152,7 +238,7 @@ namespace TransTool
         /// <returns> True - valid, False - invalid </returns>
         private bool ValidateText(string text)
         {
-            return (new Regex(this.RegularExpression, RegexOptions.IgnoreCase)).IsMatch(text) && (MaxLength == int.MinValue || text.Length <= MaxLength);
+            return true;
         }
 
         /// <summary>
