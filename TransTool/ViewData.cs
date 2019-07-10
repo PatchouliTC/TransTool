@@ -8,7 +8,29 @@ using System.Threading.Tasks;
 
 namespace TransTool
 {
-    public class ViewData: INotifyPropertyChanged
+    /// <summary>
+    /// 封装通知消息方法
+    /// </summary>
+    public class UpdateData : INotifyPropertyChanged
+    {
+        /// <summary>
+        /// 数据变更的消息通知事件
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+        /// <summary>
+        /// 数据变更的消息通知调用
+        /// </summary>
+        /// <param name="propertyName">变更的属性名称</param>
+        protected void NotifyPropertyChanged(String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        public object GetValue(string propertyName)
+        {
+            return this.GetType().GetProperty(propertyName).GetValue(this,null);
+        }
+    }
+    public class ViewData: UpdateData
     {
         private int maxline = 4;//RMXP最大行数
         private string[] data;//每个数据块的数组
@@ -103,18 +125,6 @@ namespace TransTool
             olddata = newdata.ToString();
             NotifyPropertyChanged();
             this.IsInit = true;
-        }
-        /// <summary>
-        /// 数据变更的消息通知事件
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-        /// <summary>
-        /// 数据变更的消息通知调用
-        /// </summary>
-        /// <param name="propertyName">变更的属性名称</param>
-        private void NotifyPropertyChanged(String propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

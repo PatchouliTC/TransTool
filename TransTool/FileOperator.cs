@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TransTool
 {
@@ -15,6 +19,7 @@ namespace TransTool
         word,
         json,
     }
+
     /// <summary>
     /// 文件操作类
     /// </summary>
@@ -26,7 +31,7 @@ namespace TransTool
         /// <param name="path">文件夹路径</param>
         /// <param name="target">需要包含的文件夹名</param>
         /// <returns></returns>
-        public static string[] DimExist(string path,string[] target = null)
+        public static string[] DimExist(string path, string[] target = null)
         {
             if (target == null) return null;
             string[] dir = Directory.GetDirectories(path);
@@ -42,21 +47,52 @@ namespace TransTool
         /// <param name="dimpath">目录路径</param>
         /// <param name="fileType">文件类型</param>
         /// <returns></returns>
-        public static List<FileInfo> GetFile(string dimpath, FileType fileType =FileType.all)
+        public static List<FileInfo> GetFile(string dimpath, FileType fileType = FileType.all)
         {
             DirectoryInfo fdir = new DirectoryInfo(dimpath);
             FileInfo[] temp = fdir.GetFiles();
             if (fileType == FileType.all) return temp.ToList();
             List<FileInfo> list = new List<FileInfo>();
             string ftype = fileType.ToString();
-            foreach(FileInfo fi in temp)
+            foreach (FileInfo fi in temp)
             {
                 if (fi.Extension.Contains(ftype))
                     list.Add(fi);
             }
             return list;
         }
+        /// <summary>
+        /// 读取指定的json文本
+        /// </summary>
+        /// <param name="info">FileInfo格式文件信息</param>
+        /// <param name="context">ref的参数位置</param>
+        /// <returns></returns>
+        public static bool ReadJson(FileInfo info,ref RefData context)
+        {
+            try
+            {
+                if (context == null)
+                    context = new RefData();
+                StreamReader s = info.OpenText();
+                JsonTextReader reader = new JsonTextReader(s);
+                JObject jObject = (JObject)JToken.ReadFrom(reader);
+                //设置参考版本
+                context.Version=(int)jObject["version"];
+                //读取并添加所有翻译参考文本
+                context.RefTranSlation=JsonConvert.DeserializeObject<Dictionary<string, ObservableCollection<DataBlock>>>(Regex.Replace(jObject["translation"].Value<Object>().ToString(), Environment.NewLine, ""));
+                //读取并添加所有模板参考文本
+                context.RefTemplate = JsonConvert.DeserializeObject<ObservableCollection<DataBlock>>(Regex.Replace(jObject["template"].Value<Object>().ToString(), Environment.NewLine, ""));
+                //读取并添加所有提示建议文本
+                context.RefNotice = JsonConvert.DeserializeObject<ObservableCollection<MyString>>(Regex.Replace(jObject["notice"].Value<Object>().ToString(), Environment.NewLine, ""));
 
-
+                s.Close();
+                return true;
+            }
+            catch
+            {
+                context = null;
+                return false;
+            }
+        }
     }
 }

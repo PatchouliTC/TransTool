@@ -13,5 +13,6 @@ namespace TransTool
     /// </summary>
     public partial class App : Application
     {
+
     }
 }

@@ -127,53 +127,11 @@ namespace TransTool
                 else
                 {
                     //TODO:
+
                 }
                 e.Handled = false;
                 return;
             }
-            
-
-
-            if (AssociatedObject.LineCount < this.MaxLine)
-            {
-                //如果当前行数比设定最大行数小，最多进行换行处理
-
-                e.Handled = false ;
-                return;
-            }
-            //获取当前光标前面换行符出现次数
-            int count = Regex.Matches(AssociatedObject.Text.Substring(0, AssociatedObject.CaretIndex - 1), Environment.NewLine).Count;
-
-
-
-
-
-
-
-
-
-            string text;
-            int c = AssociatedObject.CaretIndex;
-            AssociatedObject.Text = e.Text + "1";
-            if (AssociatedObject.LineCount >= 4)
-            {
-                AssociatedObject.Text.Insert(this.AssociatedObject.CaretIndex, e.Text);
-
-                //AssociatedObject.Text.
-            }
-            if (this.AssociatedObject.Text.Length < this.AssociatedObject.CaretIndex)
-                text = this.AssociatedObject.Text;
-            else
-            {
-                //  Remaining text after removing selected text.
-                string remainingTextAfterRemoveSelection;
-
-                text = TreatSelectedText(out remainingTextAfterRemoveSelection)
-                    ? remainingTextAfterRemoveSelection.Insert(AssociatedObject.SelectionStart, e.Text)
-                    : AssociatedObject.Text.Insert(this.AssociatedObject.CaretIndex, e.Text);
-            }
-
-            e.Handled = !ValidateText(text);
         }
 
         /// <summary>

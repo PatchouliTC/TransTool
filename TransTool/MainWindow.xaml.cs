@@ -46,12 +46,10 @@ namespace TransTool
         public MainWindow()
         {
             InitializeComponent();
-            textGird.AutoGenerateColumns = false;
-            transGrid.AutoGenerateColumns = false;
-            refGrid.AutoGenerateColumns = false;
             textGird.ItemsSource = textlist;
             transGrid.ItemsSource = translist;
             refGrid.ItemsSource = reflist;
+            this.addBtn.IsEnabled = false;
         }
         /// <summary>
         /// 加载文件按钮
@@ -71,7 +69,7 @@ namespace TransTool
             {
                 if (t.Split('\\').Last().ToLower().Equals("data"))
                 {
-                    List<FileInfo> file = FileOperator.GetFile(temp[0], FileType.txt);
+                    List<FileInfo> file = FileOperator.GetFile(t, FileType.txt);
                     FileData dt = new FileData();
                     foreach (FileInfo fi in file)
                     {
@@ -80,9 +78,9 @@ namespace TransTool
                         translist.Add(dt);
                     }
                 }
-                else
+                else if (t.Split('\\').Last().ToLower().Equals("reference"))
                 {
-                    List<FileInfo> file = FileOperator.GetFile(temp[1], FileType.json);
+                    List<FileInfo> file = FileOperator.GetFile(t, FileType.json);
                     FileData dt = new FileData();
                     foreach (FileInfo fi in file)
                     {
@@ -147,6 +145,31 @@ namespace TransTool
             }
         }
         /// <summary>
+        /// 双击选择要读取的参考JSON
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RefGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender != null)
+            {
+                DataGrid grid = sender as DataGrid;
+                if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
+                {
+                    FileData info = (FileData)grid.SelectedItem;
+                    RefData rd=new RefData();
+                    this.refDataGrid.DataContext = rd;
+                    if (!FileOperator.ReadJson(info.Fdata, ref rd))
+                    {
+                        MessageBoxResult result = MessageBox.Show("参考文本读取失败！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    this.refgridCBox.SelectedIndex = 0;
+                    this.addBtn.IsEnabled = true;
+                }
+            }
+        }
+        /// <summary>
         /// 文本显示区焦点切换行时更新下方原文编辑区域文本
         /// </summary>
         private void TextGird_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -189,13 +212,45 @@ namespace TransTool
         /// </summary>
         private void CopyCommand(object sender, ExecutedRoutedEventArgs e)
         {
-
+            DataGridCellInfo cell = (sender as DataGrid).CurrentCell;
+            //剪切板添加选择的数据[GetValue在UpdateData中已实现]
+            Clipboard.SetText((cell.Item as UpdateData).GetValue(cell.Column.SortMemberPath).ToString());
             string temp = e.Parameter.ToString();
             if (temp == null) temp = "Undefined";
             messageShow.Content = e.Parameter.ToString();
             Storyboard storyboard = Resources["labelAnimation"] as Storyboard;
             storyboard.Begin(messageShow);
             e.Handled = false;
+        }
+        /// <summary>
+        /// 参考文本选中
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RefgridCBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //将当前选择项目的文本列表引用给refdata
+            this.refdata.ItemsSource = ((sender as ComboBox).SelectedValue as ObservableCollection<DataBlock>);
+        }
+
+        private void AddBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.refDataGrid.DataContext == null)
+                return;
+            switch (this.reftabControl.SelectedIndex)
+            {
+                case 0:
+                    (this.refDataGrid.DataContext as RefData).AddTranslate(this.refgridCBox.Text, new DataBlock("", ""));
+                    break;
+                case 1:
+                    (this.refDataGrid.DataContext as RefData).AddTemplate(new DataBlock("", ""));
+                    break;
+                case 2:
+                    (this.refDataGrid.DataContext as RefData).AddNotice(new MyString(""));
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
