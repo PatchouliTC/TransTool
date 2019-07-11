@@ -35,7 +35,7 @@ namespace TransTool
                 if (value != this.cn)
                 {
                     this.cn = value;
-                    NotifyPropertyChanged("CNData");
+                    NotifyPropertyChanged("CN");
                 }
             }
         }
@@ -48,7 +48,7 @@ namespace TransTool
                 if (value != this.en)
                 {
                     this.en = value;
-                    NotifyPropertyChanged("CNData");
+                    NotifyPropertyChanged("CN");
                 }
             }
         }
@@ -95,6 +95,10 @@ namespace TransTool
         /// 注释文本内容
         /// </summary>
         private ObservableCollection<MyString> refNotice = null;
+        /// <summary>
+        /// 搜索文本框
+        /// </summary>
+        private string searchText = null;
         public RefData() { this.Version = version; }
         public RefData(int version)
         {
@@ -153,6 +157,32 @@ namespace TransTool
             {
                 this.refNotice = value;
                 NotifyPropertyChanged("RefNotice");
+            }
+        }
+
+        public string SearchText
+        {
+            get { return this.searchText; }
+            set
+            {
+                this.searchText = value;
+                NotifyPropertyChanged("SearchText");
+                NotifyPropertyChanged("SearchItems");
+            }
+        }
+        public IEnumerable<DataBlock> SearchItems
+        {
+            get
+            {
+                if (this.SearchText == null || this.SearchText == "")
+                    return null;
+                var res = from translation in this.RefTranSlation
+                          from list in translation.Value
+                          where (Const.Chinese.IsMatch(this.SearchText) ?
+                          Const.ToSimplified(list.CN).Contains(Const.ToSimplified(this.SearchText)) :
+                          list.EN.ToUpper().Contains(this.SearchText.ToUpper()))
+                          select (list);
+                return res;
             }
         }
         /// <summary>
@@ -257,7 +287,6 @@ namespace TransTool
             }
             return true;
         }
-
         public void AddNotice(MyString s)
         {
             this.RefNotice.Add(s);

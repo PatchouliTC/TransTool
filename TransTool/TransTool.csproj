@@ -66,10 +66,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Const.cs" />
+    <Compile Include="Data\DialoguesData.cs" />
     <Compile Include="EditBoxBehavior.cs" />
-    <Compile Include="RefData.cs" />
+    <Compile Include="Data\RefData.cs" />
     <Compile Include="VaildateEdit.cs" />
-    <Compile Include="ViewData.cs" />
+    <Compile Include="Data\ViewData.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

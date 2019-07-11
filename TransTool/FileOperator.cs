@@ -94,5 +94,12 @@ namespace TransTool
                 return false;
             }
         }
+
+        public static bool ReadDialogues(StreamReader info,out ObservableCollection<ViewData> data)
+        {
+            data = new ObservableCollection<ViewData>();
+
+            return false;
+        }
     }
 }

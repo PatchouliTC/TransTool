@@ -91,47 +91,52 @@ namespace TransTool
 
         void PreviewTextInputHandler(object sender, TextCompositionEventArgs e)
         {
-            //当前输入字符的位置[光标前一个字符的位置，从0开始计数]
-            int indexinline = AssociatedObject.CaretIndex;
-            //当前光标所在行
-            int focusline=AssociatedObject.GetLineIndexFromCharacterIndex(indexinline);
-            //即将输入字符长度
-            int inputlength = e.Text.Length;
-            //当前行该光标前一个字符相对于行首的长度
-            indexinline -= AssociatedObject.GetCharacterIndexFromLineIndex(focusline);
-            //光标前面的字符长度
-            int frontlength=AssociatedObject.Text.Length-1- AssociatedObject.GetCharacterIndexFromLineIndex(focusline)-indexinline;
-            //如果当前行长度加上即将输入字符长度小于限制的单行最大长度，不处理
-            if (indexinline + inputlength <= MaxLength)
+            if (((sender as TextBox).DataContext as ViewData).IsSelectBlock < 0 ||
+                ((sender as TextBox).DataContext as ViewData).EN != null)
             {
-                e.Handled = false;
-                return;
-            }
-            else
-            {
-                //如果大于 说明尝试输入的时候已经到达了该行限制的最大长度
-                //最佳情况：光标位于行末尾
-                //如果光标在当前行末尾[行末尾-1。每往前一个字符+1]
-                if (frontlength < 0)
+                //当前输入字符的位置[光标前一个字符的位置，从0开始计数]
+                int indexinline = AssociatedObject.CaretIndex;
+                //当前光标所在行
+                int focusline = AssociatedObject.GetLineIndexFromCharacterIndex(indexinline);
+                //即将输入字符长度
+                int inputlength = e.Text.Length;
+                //当前行该光标前一个字符相对于行首的长度
+                indexinline -= AssociatedObject.GetCharacterIndexFromLineIndex(focusline);
+                //光标前面的字符长度
+                int frontlength = AssociatedObject.Text.Length - 1 - AssociatedObject.GetCharacterIndexFromLineIndex(focusline) - indexinline;
+                //如果当前行长度加上即将输入字符长度小于限制的单行最大长度，不处理
+                if (indexinline + inputlength <= MaxLength)
                 {
-                    //如果当前行是最大行[focusline从0开始]，直接停止输入
-                    if (focusline==MaxLine-1)
-                    {
-                        e.Handled = true;
-                        return;
-                    }
-                    AssociatedObject.Text = AssociatedObject.Text.Insert(AssociatedObject.CaretIndex, Environment.NewLine);
-                    AssociatedObject.CaretIndex = AssociatedObject.Text.Length;
+                    e.Handled = false;
+                    return;
                 }
-                //坑爹情况：光标不在末尾而位于文本中任一位置
                 else
                 {
-                    //TODO:
+                    //如果大于 说明尝试输入的时候已经到达了该行限制的最大长度
+                    //最佳情况：光标位于行末尾
+                    //如果光标在当前行末尾[行末尾-1。每往前一个字符+1]
+                    if (frontlength < 0)
+                    {
+                        //如果当前行是最大行[focusline从0开始]，直接停止输入
+                        if (focusline == MaxLine - 1)
+                        {
+                            e.Handled = true;
+                            return;
+                        }
+                        AssociatedObject.Text = AssociatedObject.Text.Insert(AssociatedObject.CaretIndex, Environment.NewLine);
+                        AssociatedObject.CaretIndex = AssociatedObject.Text.Length;
+                    }
+                    //坑爹情况：光标不在末尾而位于文本中任一位置
+                    else
+                    {
+                        //TODO:
 
+                    }
+                    e.Handled = false;
+                    return;
                 }
-                e.Handled = false;
-                return;
             }
+            e.Handled = false;
         }
 
         /// <summary>

@@ -16,30 +16,38 @@ namespace TransTool
         bool FindError = false;
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
-            string[] checkstr=Regex.Split(value as string, Environment.NewLine, RegexOptions.IgnoreCase);
             sberror.Clear();
             FindError = false;
-            int count = 0;
-            if (checkstr.Length > Const.MaxLineNum)
+            if (value == null)
             {
                 FindError = true;
-                sberror.AppendLine($"行数量不能超过{Const.MaxLineNum}(行{checkstr.Length})");
+                sberror.AppendLine($"文本块不能为空！");
             }
-            foreach(string cs in checkstr)
+            else
             {
-                count++;
-                if (cs.Length > Const.MaxLineLength)
+                string[] checkstr = Regex.Split(value as string, Environment.NewLine, RegexOptions.IgnoreCase);
+                int count = 0;
+                if (checkstr.Length > Const.MaxLineNum)
                 {
                     FindError = true;
-                    sberror.AppendLine($"单行长度不能超过{Const.MaxLineLength}(行{count},长度{cs.Length})");
+                    sberror.AppendLine($"行数量不能超过{Const.MaxLineNum}(行{checkstr.Length})");
                 }
-                int matchcount = CNMarkRule.Matches(cs).Count;
-                if (matchcount > 0)
+                foreach (string cs in checkstr)
                 {
-                    FindError = true;
-                    sberror.AppendLine($"在行{count}中出现了{matchcount}个全角字符");
-                }
+                    count++;
+                    if (cs.Length > Const.MaxLineLength)
+                    {
+                        FindError = true;
+                        sberror.AppendLine($"单行长度不能超过{Const.MaxLineLength}(行{count},长度{cs.Length})");
+                    }
+                    int matchcount = CNMarkRule.Matches(cs).Count;
+                    if (matchcount > 0)
+                    {
+                        FindError = true;
+                        sberror.AppendLine($"在行{count}中出现了{matchcount}个全角字符");
+                    }
 
+                }
             }
             if (FindError)
             {

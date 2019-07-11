@@ -26,18 +26,11 @@ namespace TransTool
     /// </summary>
     public partial class MainWindow : Window
     {
-        public class TextData
-        {
-            public string data { get; set; }
-            public string newdata { get; set; }
-        }
         public struct FileData
         {
             public string data { get; set; }
             public FileInfo Fdata { get; set; }
         }
-
-        const int MaxLineCount = 4;
         DataGrid selectgrid;
         ObservableCollection<ViewData> textlist = new ObservableCollection<ViewData>();
         ObservableCollection<FileData> translist = new ObservableCollection<FileData>();
@@ -135,7 +128,8 @@ namespace TransTool
                             if (readtmp != null)
                             {
                                 ViewData dt = new ViewData();
-                                dt.Data = al.ToArray();
+                                dt.CNData = al.ToArray();
+                                dt.ENData = al.ToArray();
                                 textlist.Add(dt);//此时readtmp里面是下一个虚线分隔符
                             }
                         }
@@ -252,5 +246,6 @@ namespace TransTool
                     break;
             }
         }
+
     }
 }

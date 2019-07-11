@@ -22,8 +22,31 @@
     <Viewbox Stretch="Fill">
         <Canvas Height="900" Width="1600">
             <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="13" Width="75" Click="loadBtn_Click"/>
+            <Grid Height="482" Canvas.Left="856" Canvas.Top="93" Width="724">
+            </Grid>
+            <TextBox x:Name="searchTextBox" Text="{Binding SearchText,UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2" Canvas.Left="1329" Canvas.Top="66" Width="251">
+                <TextBox.Resources>
+                    <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left" >
+                        <VisualBrush.Visual>
+                            <TextBlock  FontStyle="Italic" Text="搜索..." Background="White"/>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </TextBox.Resources>
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Style.Triggers>
+                            <Trigger Property="Text" Value="{x:Null}">
+                                <Setter Property="Background" Value="{StaticResource HintText}"/>
+                            </Trigger>
+                            <Trigger Property="Text" Value="">
+                                <Setter Property="Background" Value="{StaticResource HintText}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
             <!--翻译/待翻译文本比较显示区域-->
-            <DataGrid x:Name="textGird" AutoGenerateColumns="False" Height="500" Canvas.Left="856" Canvas.Top="75" Width="724" HeadersVisibility="None" SelectionUnit="FullRow" 
+            <DataGrid x:Name="textGird" AutoGenerateColumns="False" Height="482" Canvas.Left="856" Canvas.Top="93" Width="724" HeadersVisibility="None" SelectionUnit="FullRow" 
                       SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False">
                 <!--失去焦点后颜色不变-->
                 <DataGrid.Resources>
@@ -38,7 +61,7 @@
                 </DataGrid.InputBindings>
                 <DataGrid.Columns>
                     <!--待翻译文本显示区域-->
-                    <DataGridTextColumn Binding="{Binding OldData}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding OldData}" Header="CN" Width="*" FontSize="14" IsReadOnly="True">
+                    <DataGridTextColumn Binding="{Binding CN}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding CN}" Header="CN" Width="*" FontSize="14" IsReadOnly="True">
                         <DataGridTextColumn.ElementStyle>
                             <!--允许单元格多行显示自动换行-->
                             <Style TargetType="TextBlock">
@@ -48,7 +71,7 @@
                         </DataGridTextColumn.ElementStyle>
                     </DataGridTextColumn>
                     <!--翻译后文本显示区域-->
-                    <DataGridTextColumn Binding="{Binding NewData}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding NewData}" Header="EN" Width="*" FontSize="14" IsReadOnly="True" >
+                    <DataGridTextColumn Binding="{Binding EN}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding EN}" Header="EN" Width="*" FontSize="14" IsReadOnly="True" >
                         <DataGridTextColumn.ElementStyle>
                             <!--允许单元格多行显示自动换行-->
                             <Style TargetType="TextBlock">
@@ -95,16 +118,16 @@
 
             <Rectangle Fill="#FF89898B" Height="270" Canvas.Left="20" Stroke="Black" Canvas.Top="593" Width="1560"/>
             <!--编辑文本相关区域-->
-            <Grid x:Name="editGrid"  Grid.Row="4" Height="270" Canvas.Left="800" Canvas.Top="592" Width="780">
+            <Grid x:Name="editGrid"  Grid.Row="4" Height="270" Canvas.Left="841" Canvas.Top="592" Width="740">
                 <Grid.DataContext>
                     <local:ViewData />
                 </Grid.DataContext>
-                <Button x:Name="updateBtn" Content="更新文本" Click="updateBtn_Click" Margin="10,223,696,10"/>
-                <Label Content="原文区域：" Margin="10,10,705,235"/>
-                <Label Content="编辑区域：" Margin="10,112,705,134"/>
-                <TextBox x:Name="showBox" TextWrapping="Wrap" Text="{Binding OldData, Mode=OneWay}" IsReadOnly="True" Background="#FFCDCBCB" Margin="10,32,380,159" />
+                <Button x:Name="updateBtn" Content="更新文本" Click="updateBtn_Click" Margin="105,223,561,10"/>
+                <Label Content="原文区域：" Margin="105,10,561,235"/>
+                <Label Content="编辑区域：" Margin="105,112,561,134"/>
+                <TextBox x:Name="showBox" TextWrapping="Wrap" Text="{Binding CN, Mode=OneWay}" IsReadOnly="True" Background="#FFCDCBCB" Margin="105,32,285,159" />
                 <TextBox x:Name="editBox" TextWrapping="Wrap" 
-                         AcceptsReturn="True" Margin="10,135,380,56">
+                         AcceptsReturn="True" Margin="105,135,285,56">
                     <!--错误提示模板-->
                     <Validation.ErrorTemplate>
                         <ControlTemplate>
@@ -117,7 +140,7 @@
                     <i:Interaction.Behaviors>
                         <local:TextBoxInputRegExBehaviour MaxLength="40" MaxLine="4"/>
                     </i:Interaction.Behaviors>
-                    <Binding UpdateSourceTrigger="Explicit" Path="NewData" Mode="TwoWay">
+                    <Binding UpdateSourceTrigger="Explicit" Path="EN" Mode="TwoWay">
                         <Binding.ValidationRules>
                             <local:ValidationEdit />
                         </Binding.ValidationRules>
@@ -125,15 +148,19 @@
                 </TextBox>
             </Grid>
             <!--参考文本相关区域-->
-            <Grid x:Name="refDataGrid"  Grid.Row="4" Height="270" Canvas.Left="20" Canvas.Top="592" Width="780">
+            <Grid x:Name="refDataGrid" Height="270" Canvas.Left="20" Canvas.Top="592" Width="820">
                 <Grid.DataContext>
                     <local:RefData />
                 </Grid.DataContext>
-                <TabControl x:Name="reftabControl" HorizontalAlignment="Left" Height="250" Margin="10,10,0,0" VerticalAlignment="Top" Width="478">
+                <TabControl x:Name="reftabControl" Height="250" Margin="10,10,366,0" VerticalAlignment="Top">
                     <TabItem Header="参考文本">
                         <Grid Background="#FFE5E5E5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="193*"/>
+                                <ColumnDefinition Width="41*"/>
+                            </Grid.ColumnDefinitions>
                             <DataGrid x:Name="refdata" HorizontalAlignment="Left" Height="191"  AutoGenerateColumns="False"
-                                      VerticalAlignment="Top" Width="468" HeadersVisibility="None"  Background="#FFE2E2E2" Margin="0,27,0,0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" >
+                                      VerticalAlignment="Top" Width="434" HeadersVisibility="None"  Background="#FFE2E2E2" Margin="0,27,0,0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" Grid.ColumnSpan="2" >
                                 <!--失去焦点后颜色不变-->
                                 <DataGrid.Resources>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
@@ -169,7 +196,7 @@
                             </DataGrid>
                             <ComboBox x:Name="refgridCBox"  Margin="0,0,0,196" ItemsSource="{Binding RefTranSlation}" 
                                 SelectedIndex="0" SelectedValuePath="Value" DisplayMemberPath="Key" 
-                                SelectionChanged="RefgridCBox_SelectionChanged" IsReadOnly="True" FontSize="14"/>
+                                SelectionChanged="RefgridCBox_SelectionChanged" IsReadOnly="True" FontSize="14" Grid.ColumnSpan="2"/>
                         </Grid>
                     </TabItem>
                     <TabItem Header="参考模板">
@@ -237,9 +264,55 @@
                         </Grid>
                     </TabItem>
                 </TabControl>
+                <Grid x:Name="refSearchGrid" Height="250" Margin="493,10,10,10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2.828"></RowDefinition>
+                        <RowDefinition Height="19.172"/>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBox x:Name="searchrefBox" Text="{Binding SearchText,UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2" Margin="-34,0,0,0">
+                        <TextBox.Resources>
+                            <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
+                                <VisualBrush.Visual>
+                                    <TextBlock  FontStyle="Italic" Text="搜索..." Background="White"/>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </TextBox.Resources>
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <ListBox Grid.Row="2" Visibility="Visible" ItemsSource="{Binding SearchItems}" Background="#FFCDCDCD" FontSize="14" HorizontalAlignment="Right" Width="351" Margin="-34,0,0,0">
+                        <!--失去焦点后颜色不变-->
+                        <ListBox.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
+                        </ListBox.Resources>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox  Grid.Column="0"  Background="LightBlue"  Text="{Binding CN,Mode=OneWay}" IsReadOnly="True"/>
+                                    <TextBox  Grid.Column="1" Text="{Binding EN,Mode=OneWay}" IsReadOnly="True"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </Grid>
             <Label x:Name="messageShow" Content="" Canvas.Left="1389" Canvas.Top="867" Width="191" FontSize="10" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
-            <Button x:Name="addBtn" Content="+" Canvas.Left="486" Canvas.Top="603" Width="20" Height="20" FontSize="14" Click="AddBtn_Click">
+            <Button x:Name="addBtn" Content="+" Canvas.Left="453" Canvas.Top="602" Width="20" Height="20" FontSize="14" Click="AddBtn_Click">
                 <Button.ToolTip>
                     <StackPanel>
                         <TextBlock FontWeight="Heavy">给对应区域添加新的文本行</TextBlock>
