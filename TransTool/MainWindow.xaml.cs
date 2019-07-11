@@ -102,38 +102,40 @@ namespace TransTool
                         MessageBoxResult result = MessageBox.Show("尝试打开一个非DM提取的文本文件！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    Regex reg = new Regex("\\-{3,}");
-                    Regex reg2 = new Regex("\\+{5,}");
-                    
-                    string readtmp="";
-                    while(!s.EndOfStream)
-                    {
-                        if (!reg.IsMatch(readtmp))
-                            readtmp = s.ReadLine();
-                        if (reg.IsMatch(readtmp))
-                        {
+                    //Regex reg = new Regex("\\-{3,}");
+                    //Regex reg2 = new Regex("\\+{5,}");
 
-                            List<string> al = new List<string>();
-                            readtmp = s.ReadLine();
-                            while (!reg.IsMatch(readtmp))
-                            {
-                                if (!reg2.IsMatch(readtmp))//+++忽略
-                                {
-                                    al.Add(readtmp);
-                                }
-                                readtmp = s.ReadLine();
-                                if (readtmp == null)
-                                    break;
-                            }
-                            if (readtmp != null)
-                            {
-                                ViewData dt = new ViewData();
-                                dt.CNData = al.ToArray();
-                                dt.ENData = al.ToArray();
-                                textlist.Add(dt);//此时readtmp里面是下一个虚线分隔符
-                            }
-                        }
-                    }
+                    //string readtmp="";
+                    //while(!s.EndOfStream)
+                    //{
+                    //    if (!reg.IsMatch(readtmp))
+                    //        readtmp = s.ReadLine();
+                    //    if (reg.IsMatch(readtmp))
+                    //    {
+
+                    //        List<string> al = new List<string>();
+                    //        readtmp = s.ReadLine();
+                    //        while (!reg.IsMatch(readtmp))
+                    //        {
+                    //            if (!reg2.IsMatch(readtmp))//+++忽略
+                    //            {
+                    //                al.Add(readtmp);
+                    //            }
+                    //            readtmp = s.ReadLine();
+                    //            if (readtmp == null)
+                    //                break;
+                    //        }
+                    //        if (readtmp != null)
+                    //        {
+                    //            ViewData dt = new ViewData();
+                    //            dt.CNData = al.ToArray();
+                    //            dt.ENData = al.ToArray();
+                    //            textlist.Add(dt);//此时readtmp里面是下一个虚线分隔符
+                    //        }
+                    //    }
+                    //}
+                    DialoguesData data = new DialoguesData(start);
+                    data.ReadDialogues(s,TextType.Original);
                     s.Close();
                 }
             }
