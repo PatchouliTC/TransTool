@@ -60,7 +60,7 @@ namespace TransTool
             {
                 if (t.Split('\\').Last().ToLower().Equals("data"))
                 {
-                    List<FileInfo> file = FileOperator.GetFile(t, FileType.txt);
+                    List<FileInfo> file = FileOperator.GetFiles(t, FileType.txt);
                     FileData dt = new FileData();
                     foreach (FileInfo fi in file)
                     {
@@ -71,7 +71,7 @@ namespace TransTool
                 }
                 else if (t.Split('\\').Last().ToLower().Equals("reference"))
                 {
-                    List<FileInfo> file = FileOperator.GetFile(t, FileType.json);
+                    List<FileInfo> file = FileOperator.GetFiles(t, FileType.json);
                     FileData dt = new FileData();
                     foreach (FileInfo fi in file)
                     {
@@ -93,23 +93,25 @@ namespace TransTool
                 if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
                 {
                     FileData info = (FileData)grid.SelectedItem;
-                    if (!FileOperator.FileExist(info.Fdata.DirectoryName, (info.Fdata.Name.Replace(info.Fdata.Extension,"")+ Const.FinishName), FileType.txt))
-                    {
-                        info.Fdata.CopyTo(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName+info.Fdata.Extension);
-                    }
                     StreamReader s=new StreamReader(info.Fdata.Open(FileMode.Open, FileAccess.Read));
                     string start = s.ReadLine();
                     if (start==null||!start.Contains("DMK"))
                     {
+                        s.Close();
                         MessageBoxResult result = MessageBox.Show("尝试打开一个非DM提取的文本文件！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-
                     DialoguesData data = new DialoguesData(start);
                     this.textmGird.DataContext = data;
                     data.ReadDialogues(s,TextType.Original);
                     s.Close();
-                    s = new StreamReader(info.Fdata.Open(FileMode.Open, FileAccess.Read));
+                    //从翻译后文本文件读取文本
+                    if (!FileOperator.FileExist(info.Fdata.DirectoryName, (info.Fdata.Name.Replace(info.Fdata.Extension, "") + Const.FinishName), FileType.all))
+                    {
+                        info.Fdata.CopyTo(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
+                    }
+                    FileInfo f= FileOperator.GetFile(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
+                    s = new StreamReader(f.Open(FileMode.Open, FileAccess.Read));
                     data.ReadDialogues(s, TextType.Posttranslation);
                     s.Close();
                 }

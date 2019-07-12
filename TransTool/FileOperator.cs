@@ -47,7 +47,7 @@ namespace TransTool
         /// <param name="dimpath">目录路径</param>
         /// <param name="fileType">文件类型</param>
         /// <returns></returns>
-        public static List<FileInfo> GetFile(string dimpath, FileType fileType = FileType.all)
+        public static List<FileInfo> GetFiles(string dimpath, FileType fileType = FileType.all)
         {
             DirectoryInfo fdir = new DirectoryInfo(dimpath);
             FileInfo[] temp = fdir.GetFiles();
@@ -84,6 +84,11 @@ namespace TransTool
 
             }
             return false;
+        }
+        
+        public static FileInfo GetFile(string path)
+        {
+            return new FileInfo(path);
         }
         /// <summary>
         /// 读取指定的json文本
