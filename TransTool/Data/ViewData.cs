@@ -45,6 +45,7 @@ namespace TransTool
         /// 该文本块是否为选项块[-1参数说明不是]
         /// </summary>
         public int IsSelectBlock { get; private set; }
+        public string SelectStr { get; set; }
         public ViewData() {this.IsSelectBlock = -1;this.IsInit = false; }
         /// <summary>
         /// 选项块初始化

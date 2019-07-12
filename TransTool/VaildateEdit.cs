@@ -11,7 +11,7 @@ namespace TransTool
 {
     public class ValidationEdit:ValidationRule
     {
-        Regex CNMarkRule = new Regex("[\u0391-\uFFE5]+");
+
         StringBuilder sberror = new StringBuilder();
         bool FindError = false;
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
@@ -40,7 +40,7 @@ namespace TransTool
                         FindError = true;
                         sberror.AppendLine($"单行长度不能超过{Const.MaxLineLength}(行{count},长度{cs.Length})");
                     }
-                    int matchcount = CNMarkRule.Matches(cs).Count;
+                    int matchcount = Const.CNMarkRule.Matches(cs).Count;
                     if (matchcount > 0)
                     {
                         FindError = true;

@@ -22,66 +22,48 @@
     <Viewbox Stretch="Fill">
         <Canvas Height="900" Width="1600">
             <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="13" Width="75" Click="loadBtn_Click"/>
-            <Grid Height="482" Canvas.Left="856" Canvas.Top="93" Width="724">
-            </Grid>
-            <TextBox x:Name="searchTextBox" Text="{Binding SearchText,UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2" Canvas.Left="1329" Canvas.Top="66" Width="251">
-                <TextBox.Resources>
-                    <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left" >
-                        <VisualBrush.Visual>
-                            <TextBlock  FontStyle="Italic" Text="搜索..." Background="White"/>
-                        </VisualBrush.Visual>
-                    </VisualBrush>
-                </TextBox.Resources>
-                <TextBox.Style>
-                    <Style TargetType="TextBox">
-                        <Style.Triggers>
-                            <Trigger Property="Text" Value="{x:Null}">
-                                <Setter Property="Background" Value="{StaticResource HintText}"/>
-                            </Trigger>
-                            <Trigger Property="Text" Value="">
-                                <Setter Property="Background" Value="{StaticResource HintText}"/>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBox.Style>
-            </TextBox>
             <!--翻译/待翻译文本比较显示区域-->
-            <DataGrid x:Name="textGird" AutoGenerateColumns="False" Height="482" Canvas.Left="856" Canvas.Top="93" Width="724" HeadersVisibility="None" SelectionUnit="FullRow" 
-                      SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False">
-                <!--失去焦点后颜色不变-->
-                <DataGrid.Resources>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
-                </DataGrid.Resources>
-                <DataGrid.CommandBindings>
-                    <CommandBinding Command="Copy" Executed="CopyCommand"/>
-                </DataGrid.CommandBindings>
-                <!-- Ctrl+C组合键呼叫Copy -->
-                <DataGrid.InputBindings>
-                    <KeyBinding Key="C" Modifiers="Control" Command="Copy" CommandParameter="已复制文本区域内容" />
-                </DataGrid.InputBindings>
-                <DataGrid.Columns>
-                    <!--待翻译文本显示区域-->
-                    <DataGridTextColumn Binding="{Binding CN}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding CN}" Header="CN" Width="*" FontSize="14" IsReadOnly="True">
-                        <DataGridTextColumn.ElementStyle>
-                            <!--允许单元格多行显示自动换行-->
-                            <Style TargetType="TextBlock">
-                                <Setter Property="TextWrapping" Value="Wrap"/>
-                                <Setter Property="Height" Value="auto"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                    <!--翻译后文本显示区域-->
-                    <DataGridTextColumn Binding="{Binding EN}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding EN}" Header="EN" Width="*" FontSize="14" IsReadOnly="True" >
-                        <DataGridTextColumn.ElementStyle>
-                            <!--允许单元格多行显示自动换行-->
-                            <Style TargetType="TextBlock">
-                                <Setter Property="TextWrapping" Value="Wrap"/>
-                                <Setter Property="Height" Value="auto"/>
-                            </Style>
-                        </DataGridTextColumn.ElementStyle>
-                    </DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <Grid x:Name="textmGird" Height="482" Canvas.Left="856" Canvas.Top="93" Width="724">
+                <Grid.DataContext>
+                    <local:DialoguesData/>
+                </Grid.DataContext>
+                <DataGrid x:Name="textGird" AutoGenerateColumns="False" Height="482" Canvas.Left="856" Canvas.Top="93" Width="724" HeadersVisibility="None" SelectionUnit="FullRow" 
+                      SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False" ItemsSource="{Binding Dialogues}">
+                    <!--失去焦点后颜色不变-->
+                    <DataGrid.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
+                    </DataGrid.Resources>
+                    <DataGrid.CommandBindings>
+                        <CommandBinding Command="Copy" Executed="CopyCommand"/>
+                    </DataGrid.CommandBindings>
+                    <!-- Ctrl+C组合键呼叫Copy -->
+                    <DataGrid.InputBindings>
+                        <KeyBinding Key="C" Modifiers="Control" Command="Copy" CommandParameter="已复制文本区域内容" />
+                    </DataGrid.InputBindings>
+                    <DataGrid.Columns>
+                        <!--待翻译文本显示区域-->
+                        <DataGridTextColumn Binding="{Binding CN}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding CN}" Header="CN" Width="*" FontSize="14" IsReadOnly="True">
+                            <DataGridTextColumn.ElementStyle>
+                                <!--允许单元格多行显示自动换行-->
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                    <Setter Property="Height" Value="auto"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <!--翻译后文本显示区域-->
+                        <DataGridTextColumn Binding="{Binding EN}" CanUserSort="False" CanUserReorder="False" ClipboardContentBinding="{Binding EN}" Header="EN" Width="*" FontSize="14" IsReadOnly="True" >
+                            <DataGridTextColumn.ElementStyle>
+                                <!--允许单元格多行显示自动换行-->
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                    <Setter Property="Height" Value="auto"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
             <!--翻译文本文件显示区域-->
             <Grid x:Name="transFileGrid" Height="231"  Width="229" Canvas.Left="543" Canvas.Top="75" >
                 <DataGrid x:Name="transGrid" AutoGenerateColumns="False" Height="206" Canvas.Left="543" Canvas.Top="75" Width="229" HeadersVisibility="None" MouseDoubleClick="TransGrid_MouseDoubleClick" Background="#FFE2E2E2" Margin="0,25,0,0">

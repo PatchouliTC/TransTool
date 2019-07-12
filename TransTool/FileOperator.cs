@@ -62,6 +62,30 @@ namespace TransTool
             return list;
         }
         /// <summary>
+        /// 指定路径下是否包含该文件名的文件类型的文件
+        /// </summary>
+        /// <param name="dimpath"></param>
+        /// <param name="name"></param>
+        /// <param name="fileType"></param>
+        /// <returns></returns>
+        public static bool FileExist(string dimpath,string name,FileType fileType = FileType.all)
+        {
+            DirectoryInfo fdir = new DirectoryInfo(dimpath);
+            FileInfo[] temp = fdir.GetFiles();
+            foreach (FileInfo i in temp)
+            {
+                if (i.Name.Equals(name))
+                {
+                    if (fileType == FileType.all)
+                        return true;
+                    if (i.Extension.Contains(fileType.ToString()))
+                        return true;
+                }
+
+            }
+            return false;
+        }
+        /// <summary>
         /// 读取指定的json文本
         /// </summary>
         /// <param name="info">FileInfo格式文件信息</param>
@@ -93,13 +117,6 @@ namespace TransTool
                 context = null;
                 return false;
             }
-        }
-
-        public static bool ReadDialogues(StreamReader info,out ObservableCollection<ViewData> data)
-        {
-            data = new ObservableCollection<ViewData>();
-
-            return false;
         }
     }
 }

@@ -13,6 +13,13 @@ namespace TransTool
         Original=1,
         Posttranslation,
     }
+    public enum LastType
+    {
+        NA=1,
+        Map,
+        Event,
+        Page,
+    }
     /// <summary>
     /// 读取到的文本内文件
     /// </summary>
@@ -30,18 +37,37 @@ namespace TransTool
         /// 文本块组织结构[MAP--->EVENT-->PAGE-->textblocks]
         /// </summary>
         private Dictionary<int, Dictionary<int, Dictionary<int, List<ViewData>>>> structure=null;
+        public DialoguesData()
+        {
+            this.DM_Version = "";
+            this.structure = new Dictionary<int, Dictionary<int, Dictionary<int, List<ViewData>>>>();
+            this.dialogues = new ObservableCollection<ViewData>();
+        }
         public DialoguesData(string DM_V) {
             this.DM_Version = DM_V;
             this.structure = new Dictionary<int, Dictionary<int, Dictionary<int, List<ViewData>>>>();
             this.dialogues = new ObservableCollection<ViewData>();
         }
+        private int nowMap = -1;
         /// <summary>
         /// 获取的文本信息总块
         /// </summary>
         public ObservableCollection<ViewData> Dialogues
         {
             get { return this.dialogues; }
-            private set { }
+            set {
+                if (this.dialogues != null && value != this.dialogues)
+                {
+                    this.dialogues = value;
+                    NotifyPropertyChanged("Dialogues");
+                }
+            }
+        }
+        public void InitData()
+        {
+            this.dialogues.Clear();
+            this.structure.Clear();
+            this.nowMap = -1;
         }
         /// <summary>
         /// 格式化对话文本
@@ -68,8 +94,10 @@ namespace TransTool
         /// 读取定位块数据
         /// </summary>
         /// <param name="sc">文本流</param>
-        private bool ReadLocation(StreamReader sc,object o,TextType t)
+        private void ReadLocation(StreamReader sc,object o,TextType t,LastType l= LastType.NA)
         {
+            if (sc.EndOfStream)
+                return;
             string data = sc.ReadLine();//读取#下一行，判断该值为那个类型
             if (Const.LocationMap.IsMatch(data))
             {
@@ -90,20 +118,35 @@ namespace TransTool
                 sc.ReadLine();
                 //跳过EVENT的上方#
                 sc.ReadLine();
+                this.nowMap = num;
                 //递归读取
-                this.ReadLocation(sc, temp, t);
+                this.ReadLocation(sc, temp, t,LastType.Map);
             }
             if (Const.LocationEvent.IsMatch(data))
             {
-                //进入EVENT块，说明object已经传递了Map对应的索引
+                if (o == null)
+                    return;
                 //获取作为Event的int数值
                 int num = int.Parse(Const.LocationEvent.Match(data).Value);
-                //获取该索引字典
-                Dictionary<int, List<ViewData>> temp;
-                if (!((o as Dictionary<int, Dictionary<int, List<ViewData>>>)).TryGetValue(num, out temp))
+                Dictionary<int, List<ViewData>> temp=null;
+                //EVENT块属于三级数据关系中位，需要额外考虑
+                if (l == LastType.Map)//说明o来自于map传递值，此时只需要直接在其中添加新的Event项目
                 {
-                    temp = new Dictionary<int, List<ViewData>>();
-                    (o as Dictionary<int, Dictionary<int, List<ViewData>>>).Add(num, temp);
+                    if (!((o as Dictionary<int, Dictionary<int, List<ViewData>>>)).TryGetValue(num, out temp))
+                    {
+                        temp = new Dictionary<int, List<ViewData>>();
+                        (o as Dictionary<int, Dictionary<int, List<ViewData>>>).Add(num, temp);
+                    }
+                }
+                else if(l==LastType.Page)//说明o来自于page结束后的传值，需要对应的map下的event字典
+                {
+                    //获取当前map下的event字典
+                    Dictionary<int, Dictionary<int, List<ViewData>>>  _temp = this.structure[this.nowMap];
+                    if (!(_temp.TryGetValue(num, out temp)))
+                    {
+                        temp = new Dictionary<int, List<ViewData>>();
+                        _temp.Add(num, temp);
+                    }                                                          
                 }
                 //跳过下一个#
                 sc.ReadLine();
@@ -111,10 +154,12 @@ namespace TransTool
                 sc.ReadLine();
                 //跳过PAGE的上方#
                 sc.ReadLine();
-                this.ReadLocation(sc, temp, t);
+                this.ReadLocation(sc, temp, t,LastType.Event);
             }
             if (Const.LocationPage.IsMatch(data))
             {
+                if (o == null)
+                    return;
                 //进入PAGE块，说明object已经传递了Page对应的索引
                 //获取作为Page的int数值
                 int num = int.Parse(Const.LocationPage.Match(data).Value);
@@ -135,6 +180,9 @@ namespace TransTool
                 {
                     //两者的文本块结构应该相同
                     IEnumerator<ViewData> next = temp.GetEnumerator();
+                    next.MoveNext();//推进到第一个元素
+                    SaveAs(t, next.Current, new string[1] { sc.ReadLine() });//第一个元素应该为文本块开始的第一个虚线
+                    next.MoveNext();//推进到正式文本块
                     ReadNewBlock(sc, next, t);
                 }
                 else
@@ -146,32 +194,40 @@ namespace TransTool
                     temp.Add(dt);
                     ReadNewBlock(sc, temp,t);
                 }
+                if (sc.EndOfStream)//到达最后一个page
+                    return;
+                sc.ReadLine();//根据规则，page块结束不是文档结束就是下一个EVENT/MAP/EVENT,跳过###
+                ReadLocation(sc, o, t, LastType.Page);
             }
             //都没匹配到，说明该行非法【DM规则#与#之间应为map/event/page】
-            return false;
+            return;
         }
 
         private void ReadNewBlock(StreamReader sc, List<ViewData> temp,TextType t)
         {
+            if (sc.EndOfStream)
+                return;
             string data = sc.ReadLine();//此时获取的是正文本或者空格,空格表示该page结束
             if (data == "")//空行，page结束
-                return ;
-            List<string> lblock=new List<string>();
+                return;
+            List<string> lblock = new List<string>();
             int isChoice = -1;
-            //此时读取到的data即为第一行文本，避免发生第一行即为选项+在此进行验证
-            if (Const.ChoiceBlock.IsMatch(data))
-            {
-                isChoice++;
-            }
-            else
-            {
-                lblock.Add(data);
-            }
+            if (Const.ChoiceBlock.IsMatch(data))//第一行是++表示选择块
+                isChoice = 0;
+            lblock.Add(data);
             string endline = ReadTextLine(sc, lblock, ref isChoice);
-            string[] block = lblock.ToArray();
+
             ViewData vdata = new ViewData(isChoice);
+            if (isChoice != -1)
+            {
+                vdata.SelectStr = lblock[isChoice];
+                lblock.RemoveAt(isChoice);
+            }
+            string[] block = lblock.ToArray();
             SaveAs(t, vdata, block);
             temp.Add(vdata);
+            //新数据加入，同时该文本块将用于显示内容
+            this.dialogues.Add(vdata);
             ViewData end = new ViewData();
             SaveAs(t, end, new string[1] { endline });
             temp.Add(end);
@@ -179,18 +235,29 @@ namespace TransTool
         }
         private void ReadNewBlock(StreamReader sc, IEnumerator<ViewData> temp, TextType t)
         {
+            if (sc.EndOfStream)
+                return;
             string data = sc.ReadLine();//此时获取的是正文本或者空格,空格表示该page结束
             if (data == "")//空行，page结束
                 return;
             List<string> lblock = new List<string>();
             int isChoice = -1;
+            if (Const.ChoiceBlock.IsMatch(data))//第一行是++表示选择块
+                isChoice = 0;
+            lblock.Add(data);
             string endline = ReadTextLine(sc, lblock, ref isChoice);
+            if (isChoice != -1)
+            {
+                temp.Current.SelectStr = lblock[isChoice];
+                lblock.RemoveAt(isChoice);
+            }
             string[] block = lblock.ToArray();
             //储存文本块
             SaveAs(t, temp.Current, block);
             temp.MoveNext();
             //储存最后的虚线块
             SaveAs(t, temp.Current, new string[1] { endline });
+            temp.MoveNext();//推进到下一个块
             ReadNewBlock(sc, temp, t);
         }
         /// <summary>
@@ -202,12 +269,15 @@ namespace TransTool
         /// <returns></returns>
         private string ReadTextLine(StreamReader sc, List<string> Block,ref int i)
         {
+            if (sc.EndOfStream)
+                return null;
             string data = sc.ReadLine();
             if (Const.TextBlock.IsMatch(data))//---,文本结束终止递归
                 return data;
             if (Const.ChoiceBlock.IsMatch(data))//+号 选择块
             {
-                i++;
+                Block.Add(data);
+                i = Block.Count - 1;//i表示+在其中的位置
                 return ReadTextLine(sc,Block,ref i);
             }
             Block.Add(data);

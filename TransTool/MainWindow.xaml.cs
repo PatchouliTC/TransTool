@@ -32,14 +32,12 @@ namespace TransTool
             public FileInfo Fdata { get; set; }
         }
         DataGrid selectgrid;
-        ObservableCollection<ViewData> textlist = new ObservableCollection<ViewData>();
         ObservableCollection<FileData> translist = new ObservableCollection<FileData>();
         ObservableCollection<FileData> reflist = new ObservableCollection<FileData>();
 
         public MainWindow()
         {
             InitializeComponent();
-            textGird.ItemsSource = textlist;
             transGrid.ItemsSource = translist;
             refGrid.ItemsSource = reflist;
             this.addBtn.IsEnabled = false;
@@ -95,6 +93,10 @@ namespace TransTool
                 if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
                 {
                     FileData info = (FileData)grid.SelectedItem;
+                    if (!FileOperator.FileExist(info.Fdata.DirectoryName, (info.Fdata.Name.Replace(info.Fdata.Extension,"")+ Const.FinishName), FileType.txt))
+                    {
+                        info.Fdata.CopyTo(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName+info.Fdata.Extension);
+                    }
                     StreamReader s=new StreamReader(info.Fdata.Open(FileMode.Open, FileAccess.Read));
                     string start = s.ReadLine();
                     if (start==null||!start.Contains("DMK"))
@@ -102,40 +104,13 @@ namespace TransTool
                         MessageBoxResult result = MessageBox.Show("尝试打开一个非DM提取的文本文件！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    //Regex reg = new Regex("\\-{3,}");
-                    //Regex reg2 = new Regex("\\+{5,}");
 
-                    //string readtmp="";
-                    //while(!s.EndOfStream)
-                    //{
-                    //    if (!reg.IsMatch(readtmp))
-                    //        readtmp = s.ReadLine();
-                    //    if (reg.IsMatch(readtmp))
-                    //    {
-
-                    //        List<string> al = new List<string>();
-                    //        readtmp = s.ReadLine();
-                    //        while (!reg.IsMatch(readtmp))
-                    //        {
-                    //            if (!reg2.IsMatch(readtmp))//+++忽略
-                    //            {
-                    //                al.Add(readtmp);
-                    //            }
-                    //            readtmp = s.ReadLine();
-                    //            if (readtmp == null)
-                    //                break;
-                    //        }
-                    //        if (readtmp != null)
-                    //        {
-                    //            ViewData dt = new ViewData();
-                    //            dt.CNData = al.ToArray();
-                    //            dt.ENData = al.ToArray();
-                    //            textlist.Add(dt);//此时readtmp里面是下一个虚线分隔符
-                    //        }
-                    //    }
-                    //}
                     DialoguesData data = new DialoguesData(start);
+                    this.textmGird.DataContext = data;
                     data.ReadDialogues(s,TextType.Original);
+                    s.Close();
+                    s = new StreamReader(info.Fdata.Open(FileMode.Open, FileAccess.Read));
+                    data.ReadDialogues(s, TextType.Posttranslation);
                     s.Close();
                 }
             }

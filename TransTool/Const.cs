@@ -15,6 +15,8 @@ namespace TransTool
         public static Regex Chinese = new Regex("[\u4e00-\u9fbb]+$");
         public static Regex Japanese = new Regex("[\u0800-\u4e00]+$");
 
+        public static Regex CNMarkRule = new Regex("(?!(←))[\u0391-\uFFE5]+");
+
         public static Regex TextBlock = new Regex("\\-{3,}");
         public static Regex ChoiceBlock = new Regex("\\+{3,}");
         public static Regex LocationBlock = new Regex("\\#{3,}");
@@ -23,6 +25,7 @@ namespace TransTool
         public static Regex LocationEvent = new Regex("(?<=(?:T\\s))[0-9]+");
         public static Regex LocationPage = new Regex("(?<=(?:E\\s))[0-9]+");
 
+        public static string FinishName = "-Posttranslation";
         private const int LOCALE_SYSTEM_DEFAULT = 0x0800;
         private const int LCMAP_SIMPLIFIED_CHINESE = 0x02000000;
         private const int LCMAP_TRADITIONAL_CHINESE = 0x04000000;
