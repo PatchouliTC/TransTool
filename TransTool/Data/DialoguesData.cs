@@ -49,6 +49,7 @@ namespace TransTool
             this.dialogues = new ObservableCollection<ViewData>();
         }
         private int nowMap = -1;
+        private string templatestr = null;
         /// <summary>
         /// 获取的文本信息总块
         /// </summary>
@@ -63,19 +64,23 @@ namespace TransTool
                 }
             }
         }
-        public void InitData()
+        /// <summary>
+        /// 每次重用时请在此初始化数据
+        /// </summary>
+        public void InitData(string version)
         {
+            this.DM_Version = version;
             this.dialogues.Clear();
             this.structure.Clear();
             this.nowMap = -1;
+            this.templatestr = null;
         }
         /// <summary>
         /// 格式化对话文本
         /// </summary>
         /// <param name="sc">对话文本流</param>
         /// <param name="type">文本类型</param>
-        /// <returns></returns>
-        public bool ReadDialogues(StreamReader sc,TextType type)
+        public void ReadDialogues(StreamReader sc,TextType type)
         {
             string _temp = null;
             while (!sc.EndOfStream)
@@ -84,11 +89,74 @@ namespace TransTool
                 _temp=sc.ReadLine();
                 if (Const.LocationBlock.IsMatch(_temp))
                 {
+                    this.templatestr = (this.templatestr == null) ? _temp : this.templatestr;
                     //发现坐标块开头###标记
                     ReadLocation(sc, null, type);
                 }
             }
-            return true;
+        }
+        /// <summary>
+        /// 将文本逐行写入文件
+        /// </summary>
+        /// <param name="sw"></param>
+        public bool SaveDialogues(StreamWriter sw)
+        {
+            try
+            {
+                sw.WriteLine(this.DM_Version);//写入DM版本
+                sw.WriteLine("");
+                sw.WriteLine("");//文本规则 两行空行
+                                 //遍历所有MAP
+                foreach (KeyValuePair<int, Dictionary<int, Dictionary<int, List<ViewData>>>> map in this.structure)
+                {
+                    sw.WriteLine(templatestr);//添加#模板
+                    sw.WriteLine($"MAP : {map.Key} [{map.Key}]");//添加MAP标签
+                    sw.WriteLine(templatestr);//添加#模板
+                    sw.WriteLine("");
+                    foreach (KeyValuePair<int, Dictionary<int, List<ViewData>>> eve in map.Value)
+                    {
+                        sw.WriteLine(templatestr);//添加#模板
+                        sw.WriteLine($"EVENT {eve.Key} [{eve.Key}]");//添加EVENT标签
+                        sw.WriteLine(templatestr);//添加#模板
+                        sw.WriteLine("");
+                        foreach (KeyValuePair<int, List<ViewData>> page in eve.Value)
+                        {
+                            sw.WriteLine(templatestr);//添加#模板
+                            sw.WriteLine($"PAGE {page.Key} [{page.Key}]");//添加PAGE标签
+                            sw.WriteLine(templatestr);//添加#模板
+                                                      //PAGE紧接对应的文本块信息，不需要空行
+                            foreach (ViewData data in page.Value)
+                            {
+                                if (data.IsSelectBlock == -1)
+                                {
+                                    //当前块为纯文本块
+                                    foreach (string s in data.ENData)
+                                    {
+                                        sw.WriteLine(s);
+                                    }
+                                }
+                                else
+                                {
+                                    List<string> text = data.ENData.ToList();
+                                    text.Insert(data.IsSelectBlock, data.SelectStr);
+                                    foreach (string s in text)
+                                    {
+                                        sw.WriteLine(s);
+                                    }
+                                }
+                            }
+                            sw.WriteLine("");//每个page结束都有一个空行
+                        }
+                    }
+                }
+                sw.Close();
+                return true;
+            }
+            catch
+            {
+                sw.Close();
+                return false;
+            }
         }
         /// <summary>
         /// 读取定位块数据

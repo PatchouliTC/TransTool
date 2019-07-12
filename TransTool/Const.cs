@@ -40,7 +40,7 @@ namespace TransTool
         public static string ToSimplified(string source)
         {
             String target = new String(' ', source.Length);
-            int ret = LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_SIMPLIFIED_CHINESE, source, source.Length, target, source.Length);
+            LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_SIMPLIFIED_CHINESE, source, source.Length, target, source.Length);
             return target;
         }
     }

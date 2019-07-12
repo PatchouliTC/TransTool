@@ -23,12 +23,12 @@
         <Canvas Height="900" Width="1600">
             <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="13" Width="75" Click="loadBtn_Click"/>
             <!--翻译/待翻译文本比较显示区域-->
-            <Grid x:Name="textmGird" Height="482" Canvas.Left="856" Canvas.Top="93" Width="724">
+            <Grid x:Name="textmGird" Height="565" Canvas.Left="856" Canvas.Top="10" Width="724">
                 <Grid.DataContext>
                     <local:DialoguesData/>
                 </Grid.DataContext>
                 <DataGrid x:Name="textGird" AutoGenerateColumns="False" Height="482" Canvas.Left="856" Canvas.Top="93" Width="724" HeadersVisibility="None" SelectionUnit="FullRow" 
-                      SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False" ItemsSource="{Binding Dialogues}">
+                      SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False" ItemsSource="{Binding Dialogues}" Margin="0,83,0,0">
                     <!--失去焦点后颜色不变-->
                     <DataGrid.Resources>
                         <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
@@ -63,10 +63,15 @@
                         </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+                <Button x:Name="SaveBtn" Content="文本保存到文件..." Click="saveBtn_Click" Margin="0,41,518,487" IsEnabled="False"/>
             </Grid>
             <!--翻译文本文件显示区域-->
             <Grid x:Name="transFileGrid" Height="231"  Width="229" Canvas.Left="543" Canvas.Top="75" >
                 <DataGrid x:Name="transGrid" AutoGenerateColumns="False" Height="206" Canvas.Left="543" Canvas.Top="75" Width="229" HeadersVisibility="None" MouseDoubleClick="TransGrid_MouseDoubleClick" Background="#FFE2E2E2" Margin="0,25,0,0">
+                    <!--失去焦点后颜色不变-->
+                    <DataGrid.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
+                    </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding data}" CanUserSort="False" CanUserReorder="False" Width="*" FontSize="14" IsReadOnly="True">
                             <DataGridTextColumn.ElementStyle>
@@ -83,6 +88,10 @@
             <!--参考文件显示区域-->
             <Grid x:Name="refFileGrid" Height="231"  Width="229" Canvas.Left="543" Canvas.Top="344">
                 <DataGrid x:Name="refGrid" AutoGenerateColumns="False" HeadersVisibility="None" Background="#FFD6D6D6" Margin="0,25,0,0" MouseDoubleClick="RefGrid_MouseDoubleClick">
+                    <!--失去焦点后颜色不变-->
+                    <DataGrid.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
+                    </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding data}" CanUserSort="False" CanUserReorder="False" Width="*" FontSize="14" IsReadOnly="True">
                             <DataGridTextColumn.ElementStyle>

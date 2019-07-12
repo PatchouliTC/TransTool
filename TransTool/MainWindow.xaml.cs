@@ -93,7 +93,7 @@ namespace TransTool
                 if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
                 {
                     FileData info = (FileData)grid.SelectedItem;
-                    StreamReader s=new StreamReader(info.Fdata.Open(FileMode.Open, FileAccess.Read));
+                    StreamReader s=new StreamReader(info.Fdata.OpenRead());
                     string start = s.ReadLine();
                     if (start==null||!start.Contains("DMK"))
                     {
@@ -101,8 +101,8 @@ namespace TransTool
                         MessageBoxResult result = MessageBox.Show("尝试打开一个非DM提取的文本文件！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-                    DialoguesData data = new DialoguesData(start);
-                    this.textmGird.DataContext = data;
+                    DialoguesData data = this.textmGird.DataContext as DialoguesData;
+                    data.InitData(start);
                     data.ReadDialogues(s,TextType.Original);
                     s.Close();
                     //从翻译后文本文件读取文本
@@ -111,9 +111,10 @@ namespace TransTool
                         info.Fdata.CopyTo(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
                     }
                     FileInfo f= FileOperator.GetFile(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
-                    s = new StreamReader(f.Open(FileMode.Open, FileAccess.Read));
+                    s = new StreamReader(f.OpenRead());
                     data.ReadDialogues(s, TextType.Posttranslation);
                     s.Close();
+                    this.SaveBtn.IsEnabled = true;
                 }
             }
         }
@@ -225,6 +226,24 @@ namespace TransTool
                     break;
             }
         }
-
+        /// <summary>
+        /// 文本保存到文件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void saveBtn_Click(object sender, RoutedEventArgs e)
+        {
+            DialoguesData data = this.textmGird.DataContext as DialoguesData;
+            FileData info = (FileData)this.transGrid.SelectedItem;
+            FileInfo f = FileOperator.GetFile(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
+            if (data.SaveDialogues(new StreamWriter(f.Create(), Encoding.UTF8)))
+            {
+                MessageBoxResult result = MessageBox.Show($"文件成功写入到{f.FullName}", "通知", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBoxResult result = MessageBox.Show($"文件写入失败！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
