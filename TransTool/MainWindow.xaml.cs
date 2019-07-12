@@ -140,6 +140,7 @@ namespace TransTool
                     }
                     this.refgridCBox.SelectedIndex = 0;
                     this.addBtn.IsEnabled = true;
+                    this.dunBtn.IsEnabled = true;
                 }
             }
         }
@@ -168,18 +169,7 @@ namespace TransTool
             if (editGrid.DataContext != null)
             {
                 this.editBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
-                //(editGrid.DataContext as ViewData).NewData = editBox.Text;
             }
-            //if (selectgrid != null && selectgrid.SelectedItems != null && selectgrid.SelectedItems.Count == 1)
-            //{
-            //    (selectgrid.SelectedItem as OverviewData).NewData = editBox.Text;
-                
-            //    //TextData dt = new TextData();
-            //    //dt.data = showBox.Text;
-            //    //dt.newdata = editBox.Text;
-            //    //textlist.Insert(selectgrid.SelectedIndex, dt);
-            //    //textlist.RemoveAt(selectgrid.SelectedIndex);
-            //}
         }
         /// <summary>
         /// Handle CTRL + C callback
@@ -243,6 +233,74 @@ namespace TransTool
             else
             {
                 MessageBoxResult result = MessageBox.Show($"文件写入失败！", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void rsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem mi = sender as MenuItem;
+            DataBlock rd = mi.DataContext as DataBlock;
+            if (rd == null)
+                return;
+            MessageBoxResult result = MessageBox.Show($"确认对全文进行如下替换：{Environment.NewLine}{rd.CN}--->{rd.EN}", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                int count = (this.textmGird.DataContext as DialoguesData).ReplaceAll(rd.CN, rd.EN);
+                MessageBox.Show($"一共替换了{count}处相同文本", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void refMenuItem_Click(object sender,RoutedEventArgs e)
+        {
+            DataBlock rd = this.reftemplate.SelectedItem as DataBlock;
+            if (rd == null)
+                return;
+            MessageBoxResult result = MessageBox.Show($"确认对全文进行如下替换：{Environment.NewLine}{rd.CN}--->{rd.EN}", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                int count = (this.textmGird.DataContext as DialoguesData).ReplaceAll(rd.CN, rd.EN);
+                MessageBox.Show($"一共替换了{count}处相同文本", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+        /// <summary>
+        /// 保存json文本
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void savejsonBtn_Click(object sender, RoutedEventArgs e)
+        {
+            DataGrid grid = this.refGrid as DataGrid;
+            if (grid.SelectedItem == null)
+                return;
+            FileData info = (FileData)grid.SelectedItem;
+            FileOperator.SaveJson(info.Fdata,this.refDataGrid.DataContext as RefData);
+        }
+
+        private void Reftemplate_LoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            e.Row.MouseRightButtonDown += (s, a) =>
+            {
+                a.Handled = true;
+                (sender as DataGrid).SelectedIndex = (s as DataGridRow).GetIndex();
+                (s as DataGridRow).Focus();
+            };
+        }
+
+        private void DunBtn_Click(object sender, RoutedEventArgs e)
+        {
+            switch (this.reftabControl.SelectedIndex)
+            {
+                case 0:
+                    (this.refDataGrid.DataContext as RefData).DelTranSlate(this.refgridCBox.Text, this.refdata.SelectedItem as DataBlock);
+                    break;
+                case 1:
+                    (this.refDataGrid.DataContext as RefData).DelTemplate(this.reftemplate.SelectedItem as DataBlock);
+                    break;
+                case 2:
+                    (this.refDataGrid.DataContext as RefData).DelNotice(this.refNotice.SelectedItem as MyString);
+                    break;
+                default:
+                    break;
             }
         }
     }

@@ -259,6 +259,18 @@ namespace TransTool
             return true;
         }
 
+        public void DelTranSlate(string type,DataBlock db)
+        {
+            if (db == null)
+                return;
+            ObservableCollection<DataBlock> value = null;
+            this.RefTranSlation.TryGetValue(type, out value);
+            if (value == null)
+            {
+                return;
+            }
+            value.Remove(value.FirstOrDefault(t => t.Equals(db)));
+        }
         public void AddTemplate(DataBlock db)
         {
             this.RefTemplate.Add(db);
@@ -287,6 +299,12 @@ namespace TransTool
             }
             return true;
         }
+        public void DelTemplate(DataBlock db)
+        {
+            if (db == null)
+                return;
+            this.refTemplate.Remove(this.refTemplate.FirstOrDefault(t=>t.Equals(db)));
+        }
         public void AddNotice(MyString s)
         {
             this.RefNotice.Add(s);
@@ -294,6 +312,12 @@ namespace TransTool
         public string GetNotice(MyString data)
         {
             return this.RefNotice.First(i => (i.Str).Equals(data.Str)).Str;
+        }
+        public void DelNotice(MyString data)
+        {
+            if (data == null)
+                return;
+            this.refNotice.Remove(this.refNotice.FirstOrDefault(t => t.Equals(data)));
         }
     }
 }

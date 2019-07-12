@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace TransTool
@@ -157,6 +158,39 @@ namespace TransTool
                 sw.Close();
                 return false;
             }
+        }
+        /// <summary>
+        /// 将翻译文本中的对应文本全部替换为另一文本
+        /// </summary>
+        /// <param name="target">目标替换的文本</param>
+        /// <param name="way">替换为</param>
+        /// <param name="IgnoreSimpleTradition">忽略简繁</param>
+        /// <returns></returns>
+        public int ReplaceAll(string target,string way,bool IgnoreSimpleTradition=false)
+        {
+            int count = 0;
+            if (IgnoreSimpleTradition)
+            {
+                string ways = Const.ToSimplified(way);
+                string targets = Const.ToSimplified(target);
+                string _temp = null;
+                foreach (ViewData v in this.dialogues)
+                {
+                    _temp = v.EN;
+                    _temp = Const.ToSimplified(_temp);
+                    count += Regex.Matches(_temp, target).Count;
+                    v.EN = _temp.Replace(targets, ways);
+                }
+            }
+            else
+            {
+                foreach (ViewData v in this.dialogues)
+                {
+                    count += Regex.Matches(v.EN, target).Count;
+                    v.EN = v.EN.Replace(target, way);
+                }
+            }        
+            return count;
         }
         /// <summary>
         /// 读取定位块数据

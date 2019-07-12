@@ -6,7 +6,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:TransTool"
         mc:Ignorable="d"
-        Title="年代记翻译工具" Height="900" Width="1600" Background="#FF999999">
+        Title="年代记翻译工具" Height="900" Width="1360" Background="#FF999999">
     <!--窗体路由-->
     <Window.Resources>
         <RoutedCommand x:Key="Copy"/>
@@ -20,10 +20,10 @@
     </Window.Resources>
     <!--主要界面布局，Viewbox,Canvas用于缩放窗口大小-->
     <Viewbox Stretch="Fill">
-        <Canvas Height="900" Width="1600">
-            <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="13" Width="75" Click="loadBtn_Click"/>
+        <Canvas Height="900" Width="1360">
+            <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="41" Width="81" Click="loadBtn_Click" Height="62"/>
             <!--翻译/待翻译文本比较显示区域-->
-            <Grid x:Name="textmGird" Height="565" Canvas.Left="856" Canvas.Top="10" Width="724">
+            <Grid x:Name="textmGird" Height="565" Canvas.Left="265" Canvas.Top="10" Width="724">
                 <Grid.DataContext>
                     <local:DialoguesData/>
                 </Grid.DataContext>
@@ -66,7 +66,7 @@
                 <Button x:Name="SaveBtn" Content="文本保存到文件..." Click="saveBtn_Click" Margin="0,41,518,487" IsEnabled="False"/>
             </Grid>
             <!--翻译文本文件显示区域-->
-            <Grid x:Name="transFileGrid" Height="231"  Width="229" Canvas.Left="543" Canvas.Top="75" >
+            <Grid x:Name="transFileGrid" Height="231"  Width="229" Canvas.Left="10" Canvas.Top="108" >
                 <DataGrid x:Name="transGrid" AutoGenerateColumns="False" Height="206" Canvas.Left="543" Canvas.Top="75" Width="229" HeadersVisibility="None" MouseDoubleClick="TransGrid_MouseDoubleClick" Background="#FFE2E2E2" Margin="0,25,0,0">
                     <!--失去焦点后颜色不变-->
                     <DataGrid.Resources>
@@ -86,7 +86,7 @@
                 <Label Content="翻译文件(双击打开)：" Height="25" Canvas.Left="543" Canvas.Top="45" Width="152" Margin="0,0,77,206"/>
             </Grid>
             <!--参考文件显示区域-->
-            <Grid x:Name="refFileGrid" Height="231"  Width="229" Canvas.Left="543" Canvas.Top="344">
+            <Grid x:Name="refFileGrid" Height="231"  Width="229" Canvas.Left="10" Canvas.Top="344">
                 <DataGrid x:Name="refGrid" AutoGenerateColumns="False" HeadersVisibility="None" Background="#FFD6D6D6" Margin="0,25,0,0" MouseDoubleClick="RefGrid_MouseDoubleClick">
                     <!--失去焦点后颜色不变-->
                     <DataGrid.Resources>
@@ -107,18 +107,18 @@
                 <Label Content="参考文件(双击打开)：" RenderTransformOrigin="-1.014,-2.47" Margin="0,0,77,206"/>
             </Grid>
 
-            <Rectangle Fill="#FF89898B" Height="270" Canvas.Left="20" Stroke="Black" Canvas.Top="593" Width="1560"/>
+            <Rectangle Fill="#FF89898B" Height="270" Stroke="Black" Canvas.Top="600" Width="1331" Canvas.Left="19"/>
             <!--编辑文本相关区域-->
-            <Grid x:Name="editGrid"  Grid.Row="4" Height="270" Canvas.Left="841" Canvas.Top="592" Width="740">
+            <Grid x:Name="editGrid"  Grid.Row="4" Height="270" Canvas.Left="20" Canvas.Top="600" Width="740">
                 <Grid.DataContext>
                     <local:ViewData />
                 </Grid.DataContext>
-                <Button x:Name="updateBtn" Content="更新文本" Click="updateBtn_Click" Margin="105,223,561,10"/>
-                <Label Content="原文区域：" Margin="105,10,561,235"/>
-                <Label Content="编辑区域：" Margin="105,112,561,134"/>
-                <TextBox x:Name="showBox" TextWrapping="Wrap" Text="{Binding CN, Mode=OneWay}" IsReadOnly="True" Background="#FFCDCBCB" Margin="105,32,285,159" />
+                <Button x:Name="updateBtn" Content="更新文本" Click="updateBtn_Click" Margin="10,223,656,10"/>
+                <Label Content="原文区域：" Margin="10,10,656,235"/>
+                <Label Content="编辑区域：" Margin="10,112,656,134"/>
+                <TextBox x:Name="showBox" TextWrapping="Wrap" Text="{Binding CN, Mode=OneWay}" IsReadOnly="True" Background="#FFCDCBCB" Margin="10,32,380,159" />
                 <TextBox x:Name="editBox" TextWrapping="Wrap" 
-                         AcceptsReturn="True" Margin="105,135,285,56">
+                         AcceptsReturn="True" Margin="10,135,380,56">
                     <!--错误提示模板-->
                     <Validation.ErrorTemplate>
                         <ControlTemplate>
@@ -139,19 +139,23 @@
                 </TextBox>
             </Grid>
             <!--参考文本相关区域-->
-            <Grid x:Name="refDataGrid" Height="270" Canvas.Left="20" Canvas.Top="592" Width="820">
+            <Grid x:Name="refDataGrid" Height="270" Canvas.Left="540" Canvas.Top="601" Width="820">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="79*"/>
+                    <ColumnDefinition Width="85*"/>
+                </Grid.ColumnDefinitions>
                 <Grid.DataContext>
                     <local:RefData />
                 </Grid.DataContext>
-                <TabControl x:Name="reftabControl" Height="250" Margin="10,10,366,0" VerticalAlignment="Top">
+                <TabControl x:Name="reftabControl" Height="250" Margin="390,10,15,0" VerticalAlignment="Top" Grid.ColumnSpan="2">
                     <TabItem Header="参考文本">
                         <Grid Background="#FFE5E5E5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="193*"/>
-                                <ColumnDefinition Width="41*"/>
+                                <ColumnDefinition Width="199*"/>
+                                <ColumnDefinition Width="206*"/>
                             </Grid.ColumnDefinitions>
                             <DataGrid x:Name="refdata" HorizontalAlignment="Left" Height="191"  AutoGenerateColumns="False"
-                                      VerticalAlignment="Top" Width="434" HeadersVisibility="None"  Background="#FFE2E2E2" Margin="0,27,0,0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" Grid.ColumnSpan="2" >
+                                      VerticalAlignment="Top" Width="395" HeadersVisibility="None"  Background="#FFE2E2E2" Margin="10,27,0,0" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" Grid.ColumnSpan="2" >
                                 <!--失去焦点后颜色不变-->
                                 <DataGrid.Resources>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
@@ -183,9 +187,8 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                 </DataGrid.Columns>
-
                             </DataGrid>
-                            <ComboBox x:Name="refgridCBox"  Margin="0,0,0,196" ItemsSource="{Binding RefTranSlation}" 
+                            <ComboBox x:Name="refgridCBox"  Margin="10,0,0,196" ItemsSource="{Binding RefTranSlation}" 
                                 SelectedIndex="0" SelectedValuePath="Value" DisplayMemberPath="Key" 
                                 SelectionChanged="RefgridCBox_SelectionChanged" IsReadOnly="True" FontSize="14" Grid.ColumnSpan="2"/>
                         </Grid>
@@ -193,11 +196,11 @@
                     <TabItem Header="参考模板">
                         <Grid Background="#FFE5E5E5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="19*"/>
-                                <ColumnDefinition Width="215*"/>
+                                <ColumnDefinition Width="67*"/>
+                                <ColumnDefinition Width="68*"/>
                             </Grid.ColumnDefinitions>
                             <DataGrid x:Name="reftemplate" HorizontalAlignment="Left" Height="218"  AutoGenerateColumns="False"
-                                      VerticalAlignment="Top" Width="468" HeadersVisibility="None"  Background="#FFE2E2E2" ItemsSource="{Binding RefTemplate}" Grid.ColumnSpan="2" >
+                                      VerticalAlignment="Top" Width="405" HeadersVisibility="None"  Background="#FFE2E2E2" ItemsSource="{Binding RefTemplate}" Grid.ColumnSpan="2" LoadingRow="Reftemplate_LoadingRow" >
                                 <!--失去焦点后颜色不变-->
                                 <DataGrid.Resources>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
@@ -229,13 +232,18 @@
                                         </DataGridTextColumn.ElementStyle>
                                     </DataGridTextColumn>
                                 </DataGrid.Columns>
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="替换该项文本" Click="refMenuItem_Click" />
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
                             </DataGrid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="注意事项">
                         <Grid Background="#FFE5E5E5">
                             <DataGrid x:Name="refNotice" HorizontalAlignment="Left" Height="218"  AutoGenerateColumns="False" ItemsSource="{Binding RefNotice}"
-                                      VerticalAlignment="Top" Width="468" HeadersVisibility="None"  Background="#FFE2E2E2" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" >
+                                      VerticalAlignment="Top" Width="405" HeadersVisibility="None"  Background="#FFE2E2E2" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" >
                                 <!--失去焦点后颜色不变-->
                                 <DataGrid.Resources>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
@@ -255,61 +263,73 @@
                         </Grid>
                     </TabItem>
                 </TabControl>
-                <Grid x:Name="refSearchGrid" Height="250" Margin="493,10,10,10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="2.828"></RowDefinition>
-                        <RowDefinition Height="19.172"/>
-                        <RowDefinition Height="*"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <TextBox x:Name="searchrefBox" Text="{Binding SearchText,UpdateSourceTrigger=PropertyChanged}" Grid.RowSpan="2" Margin="-34,0,0,0">
-                        <TextBox.Resources>
-                            <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
-                                <VisualBrush.Visual>
-                                    <TextBlock  FontStyle="Italic" Text="搜索..." Background="White"/>
-                                </VisualBrush.Visual>
-                            </VisualBrush>
-                        </TextBox.Resources>
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Style.Triggers>
-                                    <Trigger Property="Text" Value="{x:Null}">
-                                        <Setter Property="Background" Value="{StaticResource HintText}"/>
-                                    </Trigger>
-                                    <Trigger Property="Text" Value="">
-                                        <Setter Property="Background" Value="{StaticResource HintText}"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    <ListBox Grid.Row="2" Visibility="Visible" ItemsSource="{Binding SearchItems}" Background="#FFCDCDCD" FontSize="14" HorizontalAlignment="Right" Width="351" Margin="-34,0,0,0">
-                        <!--失去焦点后颜色不变-->
-                        <ListBox.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
-                        </ListBox.Resources>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"></ColumnDefinition>
-                                        <ColumnDefinition Width="*"></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox  Grid.Column="0"  Background="LightBlue"  Text="{Binding CN,Mode=OneWay}" IsReadOnly="True"/>
-                                    <TextBox  Grid.Column="1" Text="{Binding EN,Mode=OneWay}" IsReadOnly="True"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
+                <Button x:Name="addBtn" Content="+" FontSize="10" Click="AddBtn_Click" Margin="186,12,219,238" Grid.Column="1">
+                    <Button.ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Heavy"><Run Text="给对应区域添加新的文本行"/></TextBlock>
+                        </StackPanel>
+                    </Button.ToolTip>
+                </Button>
+                <TextBox x:Name="searchrefBox" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Margin="34,10,10,238">
+                    <TextBox.Resources>
+                        <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
+                            <VisualBrush.Visual>
+                                <TextBlock  FontStyle="Italic" Text="搜索..." Background="White"/>
+                            </VisualBrush.Visual>
+                        </VisualBrush>
+                    </TextBox.Resources>
+                    <TextBox.Style>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <ListBox Visibility="Visible" ItemsSource="{Binding SearchItems}" Background="#FFCDCDCD" FontSize="14" HorizontalAlignment="Right" Width="351" Margin="0,32,10,10">
+                    <!--失去焦点后颜色不变-->
+                    <ListBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
+                    </ListBox.Resources>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox  Grid.Column="0"  Background="LightBlue"  Text="{Binding CN, Mode=OneWay}" IsReadOnly="True"/>
+                                <TextBox  Grid.Column="1" Text="{Binding EN, Mode=OneWay}" IsReadOnly="True"/>
+                                <Grid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="替换该项文本" Click="rsMenuItem_Click"/>
+                                    </ContextMenu>
+                                </Grid.ContextMenu>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <Button x:Name="savejsonBtn" Content="保存参考文本" FontSize="10" Click="savejsonBtn_Click" Margin="236,12,97,238" Grid.Column="1">
+                    <Button.ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Heavy"><Run Text="给对应区域添加新的文本行"/></TextBlock>
+                        </StackPanel>
+                    </Button.ToolTip>
+                </Button>
+                <Button x:Name="dunBtn" Content="-" FontSize="10" Click="DunBtn_Click" Margin="211,12,194,238" Grid.Column="1" IsEnabled="False">
+                    <Button.ToolTip>
+                        <StackPanel>
+                            <TextBlock FontWeight="Heavy"><Run Text="给对应区域添加新的文本行"/></TextBlock>
+                        </StackPanel>
+                    </Button.ToolTip>
+                </Button>
             </Grid>
-            <Label x:Name="messageShow" Content="" Canvas.Left="1389" Canvas.Top="867" Width="191" FontSize="10" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
-            <Button x:Name="addBtn" Content="+" Canvas.Left="453" Canvas.Top="602" Width="20" Height="20" FontSize="14" Click="AddBtn_Click">
-                <Button.ToolTip>
-                    <StackPanel>
-                        <TextBlock FontWeight="Heavy">给对应区域添加新的文本行</TextBlock>
-                    </StackPanel>
-                </Button.ToolTip>
-            </Button>
+            <Label x:Name="messageShow" Content="" Canvas.Left="1159" Canvas.Top="870" Width="191" FontSize="10" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft"/>
         </Canvas>
     </Viewbox>
 </Window>

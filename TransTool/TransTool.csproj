@@ -67,9 +67,9 @@
     </ApplicationDefinition>
     <Compile Include="Const.cs" />
     <Compile Include="Data\DialoguesData.cs" />
-    <Compile Include="EditBoxBehavior.cs" />
+    <Compile Include="WindowBehaviour\EditBoxBehavior.cs" />
     <Compile Include="Data\RefData.cs" />
-    <Compile Include="VaildateEdit.cs" />
+    <Compile Include="WindowBehaviour\VaildateEdit.cs" />
     <Compile Include="Data\ViewData.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

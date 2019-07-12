@@ -15,6 +15,7 @@ namespace TransTool
         public static Regex Chinese = new Regex("[\u4e00-\u9fbb]+$");
         public static Regex Japanese = new Regex("[\u0800-\u4e00]+$");
 
+        public static Regex ReplaceG=new Regex("\\{1}(?=\")");
         public static Regex CNMarkRule = new Regex("(?!(←))[\u0391-\uFFE5]+");
 
         public static Regex TextBlock = new Regex("\\-{3,}");

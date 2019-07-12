@@ -123,5 +123,31 @@ namespace TransTool
                 return false;
             }
         }
+
+        public static void SaveJson(FileInfo info,RefData context)
+        {
+            try
+            {
+                if (context == null)
+                    return;
+                StreamWriter f = new StreamWriter(info.Create(),Encoding.UTF8);
+                JObject jObject = new JObject();
+                jObject.Add("version", context.Version);//添加当前版本
+                string serializeJson = JsonConvert.SerializeObject(context.RefTranSlation);
+                jObject.Add("translation",serializeJson);
+                serializeJson = JsonConvert.SerializeObject(context.RefTemplate);
+                jObject.Add("template", serializeJson);
+                serializeJson = JsonConvert.SerializeObject(context.RefNotice);
+                jObject.Add("notice", serializeJson);
+                string temp = jObject.ToString();
+                f.Write(temp);
+                f.Close();
+            }
+            catch
+            {
+                return;
+            }
+
+        }
     }
 }
