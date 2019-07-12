@@ -110,7 +110,8 @@ namespace TransTool
                 //读取并添加所有翻译参考文本
                 context.RefTranSlation=JsonConvert.DeserializeObject<Dictionary<string, ObservableCollection<DataBlock>>>(Regex.Replace(jObject["translation"].Value<Object>().ToString(), Environment.NewLine, ""));
                 //读取并添加所有模板参考文本
-                context.RefTemplate = JsonConvert.DeserializeObject<ObservableCollection<DataBlock>>(Regex.Replace(jObject["template"].Value<Object>().ToString(), Environment.NewLine, ""));
+                context.RefTemplate = JsonConvert.DeserializeObject<ObservableCollection<DataBlock>>
+                    (Regex.Replace(jObject["template"].Value<Object>().ToString(), Environment.NewLine, ""));
                 //读取并添加所有提示建议文本
                 context.RefNotice = JsonConvert.DeserializeObject<ObservableCollection<MyString>>(Regex.Replace(jObject["notice"].Value<Object>().ToString(), Environment.NewLine, ""));
 
