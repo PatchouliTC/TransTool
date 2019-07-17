@@ -158,6 +158,7 @@ namespace TransTool
                     ViewData info = selectgrid.SelectedItem as ViewData;
                     if (info == null) return;
                     editGrid.DataContext = info;
+                    Const.IsChoice = (info.IsSelectBlock < 0) ? false : true;
                 }
             }
         }

@@ -30,6 +30,7 @@ namespace TransTool
         private const int LOCALE_SYSTEM_DEFAULT = 0x0800;
         private const int LCMAP_SIMPLIFIED_CHINESE = 0x02000000;
         private const int LCMAP_TRADITIONAL_CHINESE = 0x04000000;
+        public static bool IsChoice { get; set; }
         [DllImport("kernel32", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern int LCMapString(int Locale, int dwMapFlags, string lpSrcStr, int cchSrc, [Out] string lpDestStr, int cchDest);
 
