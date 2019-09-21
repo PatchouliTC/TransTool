@@ -11,7 +11,8 @@ namespace TransTool
 {
     public enum TextType
     {
-        Original=1,
+        Undefined=0,
+        Original,
         Posttranslation,
     }
     public enum LastType
@@ -27,22 +28,61 @@ namespace TransTool
     public class DialoguesData:UpdateData
     {
         /// <summary>
-        /// DM版本
-        /// </summary>
-        public string DM_Version { get;private set; }
-        /// <summary>
         /// 保存的文本块列表
         /// </summary>
         private ObservableCollection<ViewData> dialogues=null;
         /// <summary>
         /// 文本块组织结构[MAP--->EVENT-->PAGE-->textblocks]
         /// </summary>
-        private Dictionary<int, Dictionary<int, Dictionary<int, List<ViewData>>>> structure=null;
+        private Dictionary<int, Dictionary<int, Dictionary<int, List<ViewData>>>> structure = null;
+        private string searchText=null;
+        private int dialoguesCount = -1;
+        /// <summary>
+        /// DM版本
+        /// </summary>
+        public string DM_Version { get; private set; }
+
+        public string SearchText
+        {
+            get { return this.searchText; }
+            set
+            {
+                this.searchText = value;
+                NotifyPropertyChanged("SearchItems");
+                this.searchText = null;
+                NotifyPropertyChanged("SearchText");
+            }
+        }
+        public IEnumerable<SearchViewData> SearchItems
+        {
+            get
+            {
+                if (this.SearchText == null || this.SearchText == ""||this.dialoguesCount==-1)
+                    return null;
+                var res = from data in this.dialogues
+                          where (Const.Chinese.IsMatch(this.SearchText) ?
+                          Const.ToSimplified(data.CN).Contains(Const.ToSimplified(this.SearchText)) :
+                          data.EN.ToUpper().Contains(this.SearchText.ToUpper()))
+                        select(
+                        new SearchViewData(data,
+                        Const.Chinese.IsMatch(this.SearchText)?
+                        TextType.Original:TextType.Posttranslation));
+                return res;
+                //var res = from translation in this.RefTranSlation
+                //          from list in translation.Value
+                //          where (Const.Chinese.IsMatch(this.SearchText) ?
+                //          Const.ToSimplified(list.CN).Contains(Const.ToSimplified(this.SearchText)) :
+                //          list.EN.ToUpper().Contains(this.SearchText.ToUpper()))
+                //          select (list);
+                //return res;
+            }
+        }
         public DialoguesData()
         {
             this.DM_Version = "";
             this.structure = new Dictionary<int, Dictionary<int, Dictionary<int, List<ViewData>>>>();
             this.dialogues = new ObservableCollection<ViewData>();
+            dialoguesCount = -1;
         }
         public DialoguesData(string DM_V) {
             this.DM_Version = DM_V;
@@ -75,6 +115,7 @@ namespace TransTool
             this.structure.Clear();
             this.nowMap = -1;
             this.templatestr = null;
+            dialoguesCount = -1;
         }
         /// <summary>
         /// 格式化对话文本
@@ -319,7 +360,7 @@ namespace TransTool
             lblock.Add(data);
             string endline = ReadTextLine(sc, lblock, ref isChoice);
 
-            ViewData vdata = new ViewData(isChoice);
+            ViewData vdata = new ViewData(isChoice,++this.dialoguesCount);
             if (isChoice != -1)
             {
                 vdata.SelectStr = lblock[isChoice];

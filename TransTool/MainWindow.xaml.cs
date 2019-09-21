@@ -93,7 +93,10 @@ namespace TransTool
                 if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
                 {
                     FileData info = (FileData)grid.SelectedItem;
-                    StreamReader s=new StreamReader(info.Fdata.OpenRead());
+                    //目标文本的编码格式获取
+                    Encoding texttype = FileEncoding.GetType(info.Fdata);
+
+                    StreamReader s=new StreamReader(info.Fdata.OpenRead(),texttype);
                     string start = s.ReadLine();
                     if (start==null||!start.Contains("DMK"))
                     {
@@ -104,14 +107,32 @@ namespace TransTool
                     DialoguesData data = this.textmGird.DataContext as DialoguesData;
                     data.InitData(start);
                     data.ReadDialogues(s,TextType.Original);
-                    s.Close();
                     //从翻译后文本文件读取文本
+                    //如果不存在翻译后文本文件则直接创建新的文件，同时使用UTF8编码格式
                     if (!FileOperator.FileExist(info.Fdata.DirectoryName, (info.Fdata.Name.Replace(info.Fdata.Extension, "") + Const.FinishName), FileType.all))
                     {
-                        info.Fdata.CopyTo(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
+                        s.BaseStream.Seek(0, SeekOrigin.Begin);
+                        //创建UTF-8编码文本，最后判断避免创建UTF-8BOM格式
+                        File.WriteAllText(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName, s.ReadToEnd(), new UTF8Encoding(false));
+                        //info.Fdata.CopyTo(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
                     }
+                    s.Close();
                     FileInfo f= FileOperator.GetFile(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
-                    s = new StreamReader(f.OpenRead());
+                    texttype= FileEncoding.GetType(f);
+                    //更新历史翻译文本格式
+                    if (texttype != Encoding.UTF8)
+                    {
+                        string tempcontext;
+                        using (StreamReader r= new StreamReader(f.OpenRead(), texttype))
+                        {
+                          tempcontext = r.ReadToEnd();
+                        }
+                        f.Delete();
+                        //创建UTF-8编码文本，最后判断避免创建UTF-8BOM格式
+                        File.WriteAllText(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName, tempcontext, new UTF8Encoding(false));
+                        f = FileOperator.GetFile(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
+                    }
+                    s = new StreamReader(f.OpenRead(),Encoding.UTF8);
                     data.ReadDialogues(s, TextType.Posttranslation);
                     s.Close();
                     this.SaveBtn.IsEnabled = true;
@@ -167,9 +188,27 @@ namespace TransTool
         /// </summary>
         private void updateBtn_Click(object sender, RoutedEventArgs e)
         {
+            UpdateWithNextLine();
+        }
+        private void SaveCommand(object sender, object e)
+        {
+            UpdateWithNextLine();
+        }
+        private void UpdateWithNextLine()
+        {
             if (editGrid.DataContext != null)
             {
                 this.editBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+                ValidationError a = this.editBox.GetBindingExpression(TextBox.TextProperty).ValidationError;
+                //为空说明验证通过
+                if (a == null)
+                {
+                    if (textGird.SelectedIndex >= 0 && textGird.SelectedIndex < textGird.Items.Count - 1)
+                    {
+                        Const.SelectRowByIndex(textGird, textGird.SelectedIndex + 1);
+                        editBox.Focus();
+                    }
+                }
             }
         }
         /// <summary>
@@ -227,7 +266,22 @@ namespace TransTool
             DialoguesData data = this.textmGird.DataContext as DialoguesData;
             FileData info = (FileData)this.transGrid.SelectedItem;
             FileInfo f = FileOperator.GetFile(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
-            if (data.SaveDialogues(new StreamWriter(f.Create(), Encoding.UTF8)))
+            StreamWriter save = null;
+            try
+            {
+                save = new StreamWriter(f.Create(), Encoding.UTF8);
+            }
+            catch
+            {
+                MessageBoxResult result = MessageBox.Show($"文件无法覆写！\n" +
+                    $"[原因：{f.Name}已经存在但处于只读模式或没有写文件权限]\n" +
+                    $"逐级尝试:\n" +
+                    $"1.取消{f.Name}的只读模式\n" +
+                    $"2.删除{f.Name}文件\n" +
+                    $"3.关闭程序并尝试以管理员身份启动[警告：这将导致现有工作进度丢失！]", "警告", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (save!=null&&data.SaveDialogues(save))
             {
                 MessageBoxResult result = MessageBox.Show($"文件成功写入到{f.FullName}", "通知", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -302,6 +356,24 @@ namespace TransTool
                     break;
                 default:
                     break;
+            }
+        }
+
+        private void SearchData_Executed(object sender, object e)
+        {
+            this.searchdataBox.GetBindingExpression(TextBox.TextProperty).UpdateSource();
+        }
+
+        private void SearchDataRes_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            SearchViewData temp =(SearchViewData)(sender as ListBox).SelectedItem;
+            if (temp.ShowText==null)
+                return;
+            int index = temp.WhichLine;
+            if (index >= 0 && index < textGird.Items.Count - 1)
+            {
+                Const.SelectRowByIndex(textGird, index + 1);
+                editBox.Focus();
             }
         }
     }
