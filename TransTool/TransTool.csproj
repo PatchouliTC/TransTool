@@ -68,8 +68,10 @@
     </ApplicationDefinition>
     <Compile Include="Const.cs" />
     <Compile Include="Data\DialoguesData.cs" />
+    <Compile Include="FileEncoding.cs" />
     <Compile Include="WindowBehaviour\EditBoxBehavior.cs" />
     <Compile Include="Data\RefData.cs" />
+    <Compile Include="WindowBehaviour\EventToCommand.cs" />
     <Compile Include="WindowBehaviour\VaildateEdit.cs" />
     <Compile Include="Data\ViewData.cs" />
     <Page Include="MainWindow.xaml">

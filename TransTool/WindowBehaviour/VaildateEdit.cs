@@ -28,7 +28,7 @@ namespace TransTool
                 string valueregular = (Regex.Replace((value as string), "\n", "\r\n", RegexOptions.IgnoreCase)).Replace("\n\n", "\n");
                 string[] checkstr = Regex.Split(value as string, Environment.NewLine, RegexOptions.IgnoreCase);
                 int count = 0;
-                if (checkstr.Length > Const.MaxLineNum)
+                if ((!Const.IsChoice)&&checkstr.Length > Const.MaxLineNum)
                 {
                     FindError = true;
                     sberror.AppendLine($"行数量不能超过{Const.MaxLineNum}(行{checkstr.Length})");
@@ -54,7 +54,7 @@ namespace TransTool
             {
                 return new ValidationResult(false, sberror.ToString());
             }
-            return new ValidationResult(true,"");
+            return new ValidationResult(true,null);
         }
     }
 }

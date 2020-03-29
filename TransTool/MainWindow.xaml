@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:local="clr-namespace:TransTool"
+        xmlns:ETC="clr-namespace:TransTool.WindowBehaviour"
         mc:Ignorable="d"
         Title="年代记翻译工具" Height="900" Width="1360" Background="#FF999999">
     <!--窗体路由-->
@@ -23,12 +24,12 @@
         <Canvas Height="900" Width="1360">
             <Button x:Name="loadBtn" Content="加载文件" Canvas.Left="10" Canvas.Top="41" Width="81" Click="loadBtn_Click" Height="62"/>
             <!--翻译/待翻译文本比较显示区域-->
-            <Grid x:Name="textmGird" Height="565" Canvas.Left="265" Canvas.Top="10" Width="724">
+            <Grid x:Name="textmGird" Height="565" Canvas.Left="265" Canvas.Top="10" Width="1085">
                 <Grid.DataContext>
                     <local:DialoguesData/>
                 </Grid.DataContext>
                 <DataGrid x:Name="textGird" AutoGenerateColumns="False" Height="482" Canvas.Left="856" Canvas.Top="93" Width="724" HeadersVisibility="None" SelectionUnit="FullRow" 
-                      SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False" ItemsSource="{Binding Dialogues}" Margin="0,83,0,0">
+                      SelectionChanged="TextGird_SelectionChanged" Background="#FFD4D4D4" CanUserAddRows="False" ItemsSource="{Binding Dialogues}" Margin="0,83,361,0">
                     <!--失去焦点后颜色不变-->
                     <DataGrid.Resources>
                         <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
@@ -63,7 +64,54 @@
                         </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Button x:Name="SaveBtn" Content="文本保存到文件..." Click="saveBtn_Click" Margin="0,41,518,487" IsEnabled="False"/>
+                <Button x:Name="SaveBtn" Content="文本保存到文件..." Click="saveBtn_Click" Margin="0,41,895,487" IsEnabled="False"/>
+                
+                <TextBox x:Name="searchdataBox" Text="{Binding SearchText}" Margin="734,56,0,487">
+                    <TextBox.Resources>
+                        <VisualBrush x:Key="HintText" TileMode="None" Opacity="0.5" Stretch="None" AlignmentX="Left">
+                            <VisualBrush.Visual>
+                                <TextBlock  FontStyle="Italic" Text="搜索[输入完毕后回车]..." Background="White"/>
+                            </VisualBrush.Visual>
+                        </VisualBrush>
+                    </TextBox.Resources>
+                    <TextBox.Style>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Background" Value="{StaticResource HintText}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter">
+                            <KeyBinding.Command>
+                                <ETC:EventToCommand Executed="SearchData_Executed"/>
+                            </KeyBinding.Command>
+                        </KeyBinding>
+                    </TextBox.InputBindings>
+                </TextBox>
+                <ListBox x:Name="SearchDataRes" Visibility="Visible" ItemsSource="{Binding SearchItems}" Background="#FFCDCDCD" MouseDoubleClick="SearchDataRes_MouseDoubleClick" FontSize="14" HorizontalAlignment="Right" Width="351" Margin="0,83,0,0">
+                    <!--失去焦点后颜色不变-->
+                    <ListBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#FF39A1FD"/>
+                    </ListBox.Resources>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox  Grid.Column="0"  Background="LightBlue"  Text="{Binding Line, Mode=OneWay}" IsReadOnly="True" Focusable="False"/>
+                                <TextBox  Grid.Column="1" Text="{Binding ShowText, Mode=OneWay}" IsReadOnly="True" Focusable="False"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
             <!--翻译文本文件显示区域-->
             <Grid x:Name="transFileGrid" Height="231"  Width="229" Canvas.Left="10" Canvas.Top="108" >
@@ -117,7 +165,7 @@
                 <Label Content="原文区域：" Margin="10,10,656,235"/>
                 <Label Content="编辑区域：" Margin="10,112,656,134"/>
                 <TextBox x:Name="showBox" TextWrapping="Wrap" Text="{Binding CN, Mode=OneWay}" IsReadOnly="True" Background="#FFCDCBCB" Margin="10,32,380,159" />
-                <TextBox x:Name="editBox" TextWrapping="Wrap" 
+                <TextBox x:Name="editBox" TextWrapping="Wrap"
                          AcceptsReturn="True" Margin="10,135,380,56">
                     <!--错误提示模板-->
                     <Validation.ErrorTemplate>
@@ -128,12 +176,20 @@
                             </StackPanel>
                         </ControlTemplate>
                     </Validation.ErrorTemplate>
+                    <!-- Ctrl+C组合键呼叫Copy -->
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter"  Modifiers="Alt" >
+                            <KeyBinding.Command>
+                                <ETC:EventToCommand Executed="SaveCommand"/>
+                            </KeyBinding.Command>
+                        </KeyBinding>
+                    </TextBox.InputBindings>
                     <i:Interaction.Behaviors>
-                        <local:TextBoxInputRegExBehaviour MaxLength="40" MaxLine="4"/>
+                        <local:TextBoxInputRegExBehaviour MaxLength="48" MaxLine="4"/>
                     </i:Interaction.Behaviors>
                     <Binding UpdateSourceTrigger="Explicit" Path="EN" Mode="TwoWay">
                         <Binding.ValidationRules>
-                            <local:ValidationEdit />
+                            <local:ValidationEdit/>
                         </Binding.ValidationRules>
                     </Binding>
                 </TextBox>
