@@ -54,7 +54,8 @@ namespace TransTool
             {
                 return new ValidationResult(false, sberror.ToString());
             }
-            return new ValidationResult(true,null);
+
+            return new ValidationResult(true,"");
         }
     }
 }

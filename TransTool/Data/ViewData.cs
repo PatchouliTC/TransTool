@@ -41,18 +41,17 @@ namespace TransTool
         /// 该数据块是否已经被初始化
         /// </summary>
         public bool IsInit { get; private set; }
-        public int ShowLine { get; private set; }
         /// <summary>
         /// 该文本块是否为选项块[-1参数说明不是]
         /// </summary>
         public int IsSelectBlock { get; private set; }
         public string SelectStr { get; set; }
-        public ViewData() { this.IsSelectBlock = -1; this.IsInit = false; this.ShowLine = -1; }
+        public ViewData() {this.IsSelectBlock = -1;this.IsInit = false; }
         /// <summary>
         /// 选项块初始化
         /// </summary>
         /// <param name="type">选项++++在块中的位置</param>
-        public ViewData(int type = -1, int ShowLine = -1) {this.IsSelectBlock = type; this.IsInit = false;this.ShowLine = ShowLine; }
+        public ViewData(int type=-1) {this.IsSelectBlock = type; this.IsInit = false; }
         public string[] CNData
         {
             get
@@ -147,39 +146,6 @@ namespace TransTool
             }
             this.IsInit = true;
             NotifyPropertyChanged();
-        }
-    }
-    public struct SearchViewData
-    {
-        private int line;
-        private ViewData Data;
-        private TextType FindDataType;
-        public string Line
-        {
-            get { return $"行{line}"; }
-        }
-        public int WhichLine
-        {
-            get { return this.line-1; }
-        }
-        public string ShowText
-        {
-            get
-            {
-                switch (FindDataType)
-                {
-                    case TextType.Original:
-                        return Data.CN;
-                    case TextType.Posttranslation:
-                        return Data.EN;
-                    default:
-                        return null;
-                }
-            }
-        }
-        public SearchViewData(ViewData d=null,TextType t= TextType.Undefined)
-        {
-            this.line = d.ShowLine+1;this.Data = d;this.FindDataType = t;
         }
     }
 }
