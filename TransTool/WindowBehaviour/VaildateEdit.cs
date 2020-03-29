@@ -25,6 +25,7 @@ namespace TransTool
             }
             else
             {
+                string valueregular = (Regex.Replace((value as string), "\n", "\r\n", RegexOptions.IgnoreCase)).Replace("\n\n", "\n");
                 string[] checkstr = Regex.Split(value as string, Environment.NewLine, RegexOptions.IgnoreCase);
                 int count = 0;
                 if (checkstr.Length > Const.MaxLineNum)

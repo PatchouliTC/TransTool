@@ -304,7 +304,7 @@ namespace TransTool
             //都没匹配到，说明该行非法【DM规则#与#之间应为map/event/page】
             return;
         }
-
+        [Obsolete]
         private void ReadNewBlock(StreamReader sc, List<ViewData> temp,TextType t)
         {
             if (sc.EndOfStream)
@@ -365,9 +365,9 @@ namespace TransTool
         /// <summary>
         /// 文本块递归
         /// </summary>
-        /// <param name="sc"></param>
-        /// <param name="Block"></param>
-        /// <param name="i"></param>
+        /// <param name="sc">文件流</param>
+        /// <param name="Block">文本块列表</param>
+        /// <param name="i">定位每个块中++++++行位置</param>
         /// <returns></returns>
         private string ReadTextLine(StreamReader sc, List<string> Block,ref int i)
         {

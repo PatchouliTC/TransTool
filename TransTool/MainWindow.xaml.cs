@@ -93,7 +93,7 @@ namespace TransTool
                 if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
                 {
                     FileData info = (FileData)grid.SelectedItem;
-                    StreamReader s=new StreamReader(info.Fdata.OpenRead());
+                    StreamReader s=new StreamReader(info.Fdata.OpenRead(),Encoding.Default);
                     string start = s.ReadLine();
                     if (start==null||!start.Contains("DMK"))
                     {
@@ -111,7 +111,7 @@ namespace TransTool
                         info.Fdata.CopyTo(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
                     }
                     FileInfo f= FileOperator.GetFile(info.Fdata.FullName.Replace(info.Fdata.Extension, "") + Const.FinishName);
-                    s = new StreamReader(f.OpenRead());
+                    s = new StreamReader(f.OpenRead(),Encoding.Default);
                     data.ReadDialogues(s, TextType.Posttranslation);
                     s.Close();
                     this.SaveBtn.IsEnabled = true;

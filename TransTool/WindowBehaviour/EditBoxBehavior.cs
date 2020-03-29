@@ -63,7 +63,7 @@ namespace TransTool
         private int[] LineLength;
 
         /// <summary>
-        ///     Attach our behaviour. Add event handlers
+        /// Add event handlers
         /// </summary>
         protected override void OnAttached()
         {
@@ -76,7 +76,7 @@ namespace TransTool
         }
 
         /// <summary>
-        ///     Deattach our behaviour. remove event handlers
+        /// Remove event handlers
         /// </summary>
         protected override void OnDetaching()
         {
